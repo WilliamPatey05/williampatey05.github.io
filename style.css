@@ -39,7 +39,13 @@ body {
   background-position: -1px -1px;
   background-attachment: fixed;
 }
-
+body.light-mode {
+  background: #f4f4f2;
+  color: #14181c;
+}
+body.light-mode .readout, body.light-mode .project-card, body.light-mode .surface {
+  background: #ffffff;
+}
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
