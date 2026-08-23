@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engineering Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">William Patey<span class="dot">.</span></div>
+    <nav class="nav-links">
+      <a href="#projects">Projects</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="hero-tag">Aerospace / Mechanical Engineering</p>
+    <h1>Building and testing flight hardware, one iteration at a time.</h1>
+    <p class="lead">Student engineer working across airframe design, CFD, propulsion sizing, and embedded flight electronics. This is a running log of what I've built, broken, and fixed.</p>
+  </div>
+
+  <svg class="airfoil-trace" viewBox="0 0 460 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <!-- Real SD7037 profile, from UIUC Airfoil Coordinates Database, thickness/camber exaggerated ~2.25x for visibility at this scale -->
+    <path class="chord" d="M20,110 L420,110" />
+    <path d="M420,110 L418.69,109.62 L414.83,108.38 L408.58,106.08 L400.16,102.7 L389.8,98.34 L377.7,93.22 L364.06,87.59 L349.04,81.73 L332.8,75.91 L315.46,70.28 L297.18,64.9 L278.16,59.85 L258.62,55.23 L238.77,51.16 L218.82,47.75 L198.98,45.1 L179.45,43.31 L160.4,42.46 L142.03,42.61 L124.5,43.78 L107.96,45.98 L92.55,49.21 L78.4,53.43 L65.64,58.56 L54.34,64.56 L44.58,71.3 L36.41,78.63 L29.85,86.31 L24.93,94.07 L21.67,101.58 L20.08,108.33 L20.51,113.54 L23.22,117.55 L28.15,121.04 L35.2,123.87 L44.3,125.99 L55.38,127.41 L68.34,128.15 L83.06,128.29 L99.4,127.88 L117.18,127.02 L136.22,125.79 L156.28,124.27 L177.15,122.56 L198.57,120.71 L220.3,118.78 L242.08,116.84 L263.66,114.94 L284.79,113.14 L305.22,111.51 L324.71,110.13 L343.01,109.06 L359.86,108.36 L375.02,108.02 L388.28,108.04 L399.44,108.33 L408.31,108.81 L414.76,109.36 L418.68,109.81 L420,110 Z" />
+  </svg>
+</header>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Projects</span>
+      <h2>Selected work</h2>
+    </div>
+
+    <div class="projects-grid">
+      <a class="project-card" href="uav-build.html">
+        <div class="status">In progress</div>
+        <h3>Fixed-Wing Camera UAV</h3>
+        <p>Full-stack build: airframe design, Ansys Fluent CFD, propulsion sizing, stability analysis, and an ArduPilot flight stack with a custom gimbal.</p>
+        <div class="go">View project</div>
+      </a>
+
+      <div class="project-card placeholder">
+        <div class="status">Coming soon</div>
+        <h3>Next build</h3>
+        <p>More projects will land here as they're documented.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">About</span>
+      <h2>Background</h2>
+    </div>
+    <p class="about-body">
+      I'm a student working across <strong>aerodynamics, CFD, propulsion, and electronics</strong> — pairing coursework with independent hands-on builds. I like projects that force me to work across the full stack of a system: simulate it, size it, fabricate it, wire it, and then debug it when it inevitably doesn't work the first time.
+    </p>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap" style="display:flex; justify-content:space-between; width:100%;">
+    <span>© 2026</span>
+    <span><a href="mailto:you@example.com">you@example.com</a> · <a href="https://github.com/yourusername">GitHub</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
