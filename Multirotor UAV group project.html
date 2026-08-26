@@ -31,10 +31,16 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
   <div class="wrap">
     <a class="back-link" href="index.html">← Back to projects</a>
     <h1>Multirotor UAV</h1>
-    <p class="subtitle">A <640g> g fixed-wing platform built from scratch — airframe, CFD, propulsion, stability, and an ArduPilot-based flight stack with a custom camera gimbal.</p>
+    <p class="subtitle">A <640g> quadcopter designed and built by 6-person group project team. </p>
   </div>
 </header>
-
+<div class="cat-carousel" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:12px; margin-bottom:32px; border-bottom:1px solid var(--line);">
+  <button class="cat-btn active" data-cat="all">All</button>
+  <button class="cat-btn" data-cat="aero">Aero</button>
+  <button class="cat-btn" data-cat="electronics">Electronics</button>
+  <button class="cat-btn" data-cat="manufacture">Manufacture</button>
+  <button class="cat-btn" data-cat="testing">Testing</button>
+</div>
 <section>
   <div class="wrap">
     <div class="section-head">
@@ -42,29 +48,9 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
       <h2>Airframe</h2>
     </div>
     <table class="spec-table">
-      <tr><td>All-up weight</td><td>~816 g (target 800 g)</td></tr>
-      <tr><td>Wingspan</td><td>1 m</td></tr>
-      <tr><td>Airfoil</td><td>SD7037, 0.25 m chord, tapered planform</td></tr>
-      <tr><td>Spar</td><td>16/14 mm carbon fibre (Easy Composites)</td></tr>
-      <tr><td>Tail configuration</td><td>Conventional</td></tr>
-      <tr><td>Fabrication</td><td>PLA / PLA Aero, printed on a Bambu A1</td></tr>
-      <tr><td>Landing gear</td><td>3D-printed U-shaped PLA skid with Lego wheels</td></tr>
-    </table>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <div class="section-head">
-      <span class="tag">CFD</span>
-      <h2>Aerodynamic analysis</h2>
-    </div>
-    <table class="spec-table">
-      <tr><td>Solver</td><td>Ansys Fluent, Transition SST, 3D half-wing model</td></tr>
-      <tr><td>CL max</td><td>≈ 0.9 at 12° AoA</td></tr>
-      <tr><td>Peak L/D</td><td>≈ 16 at 4.2° AoA</td></tr>
-      <tr><td>Cruise speed</td><td>≈ 10.2 m/s</td></tr>
-      <tr><td>Static margin</td><td>~11% MAC</td></tr>
+      <tr><td>All-up weight</td><td>632g (max 640g)</td></tr>
+      <tr><td>Propellers</td><td>4</td></tr>
+      <tr><td>Fabrication</td><td>Plywood cut on a lasercutter</td></tr>
     </table>
   </div>
 </section>
@@ -117,12 +103,11 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
   </div>
 </section>
 
-<footer>
+<footer id="contact">
   <div class="wrap" style="display:flex; justify-content:space-between; width:100%;">
     <span>© 2026</span>
-    <span><a href="mailto:you@example.com">you@example.com</a> · <a href="https://github.com/yourusername">GitHub</a></span>
+    <span><a href="mailto:wpatey5@gmail.com">wpatey5@gmail.com</a> · <a href="https://github.com/WilliamPatey05">GitHub</a> · <a href="https://www.linkedin.com/in/william-patey/">LinkedIn</a></span>
   </div>
 </footer>
-
 </body>
 </html>

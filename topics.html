@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Browse by Topic</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">YOURNAME<span class="dot">.</span></div>
+    <nav class="nav-links"><a href="index.html">Home</a></nav>
+  </div>
+</div>
+
+<header class="detail-header">
+  <div class="wrap">
+    <a class="back-link" href="index.html">← Back home</a>
+    <h1 id="topic-title">Topic</h1>
+    <p class="subtitle">Every place this shows up across all projects.</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap" id="results">
+    <!-- results injected by JS -->
+  </div>
+</section>
+
+<script src="content-index.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const tag = params.get('tag');
+  document.getElementById('topic-title').innerText =
+    tag ? tag.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'All topics';
+
+  const matches = CONTENT_INDEX.filter(entry => entry.tags.includes(tag));
+  const container = document.getElementById('results');
+
+  if (matches.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-dim);">Nothing tagged yet.</p>';
+  } else {
+    matches.forEach(entry => {
+      const card = document.createElement('a');
+      card.href = entry.url;
+      card.className = 'project-card';
+      card.style.display = 'block';
+      card.style.marginBottom = '1px';
+      card.innerHTML = `
+        <div class="status">${entry.project}</div>
+        <h3>${entry.title}</h3>
+        <div class="go">Jump to section</div>
+      `;
+      container.appendChild(card);
+    });
+  }
+</script>
+
+</body>
+</html>

@@ -397,3 +397,22 @@ a:focus-visible, button:focus-visible {
   outline: 2px solid var(--amber);
   outline-offset: 3px;
 }
+.topic-pill {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+}
+.topic-pill:hover { border-color: var(--amber); color: var(--amber); }
+.cat-btn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  padding: 8px 16px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.cat-btn.active, .cat-btn:hover { border-color: var(--amber); color: var(--amber); }
