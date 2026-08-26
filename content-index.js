@@ -9,13 +9,13 @@ const CONTENT_INDEX = [
     title: "Open-loop gimbal control with derivative damping",
     project: "Quadcopter Payload",
     tags: ["control-systems", "electronics"],
-    url: "quadcopter.html#gimbal-control"
+    url: "Multirotor UAV group project.html#gimbal-control"
   },
   {
     title: "Complementary filtering for IMU drift",
     project: "Quadcopter Payload",
     tags: ["control-systems", "electronics", "filtering"],
-    url: "quadcopter.html#filtering"
+    url: "Multirotor UAV group project.html#filtering"
   },
   {
     title: "ArduPilot flight computer / FBW setup",
