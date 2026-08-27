@@ -110,12 +110,12 @@ compAngleY = AlphaY * (compAngleY + gyroYrate * dt) + (1 - AlphaY) * pitch;
         <p> Remove steady-state bias during integration</p>
         <pre><code class="language-cpp">  gyroZangle += (gyroZrate - steadyStateBias) * dt;  // Remove steady-state bias </code></pre>
         <p>A Kalman filter was also tested, however, this provided very unstable movement so was not used. </p>
-      </div>
+      
 
         <p>The provided IMU’s angular velocity measurements were initially very noisy, so multiple filtering techniques were employed to obtain a usable signal for the controller to work with.       </div>
         <img src="Images/Filtering.png" alt="filtering-techniques">
         <p>Low-pass filtering was used to filter both the angular-rate measurement of roll, pitch and yaw as well as the acceleration recordings in X,Y and Z-directions. Heavier filtering was utilised for the damping term, as well as second order filtering on the acceleration readings to remove noise caused by motor vibrations.</p>
-
+      </div>
 
 
       </details>
