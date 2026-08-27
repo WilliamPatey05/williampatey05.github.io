@@ -459,3 +459,17 @@ a:focus-visible, button:focus-visible {
   color: var(--text-dim);
   font-size: 14.5px;
 }
+css
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.img-medium {
+  max-width: 500px;
+}
+
+.img-small {
+  max-width: 300px;
+}

@@ -106,7 +106,7 @@ compAngleY = AlphaY * (compAngleY + gyroYrate * dt) + (1 - AlphaY) * pitch;
           timer = micros();  //Reset timer
         }
         return;  // Skip servo control until calibration is complete
-        }</code>
+        }</code></pre>
         <p> Remove steady-state bias during integration</p>
         <pre><code class="language-cpp">  gyroZangle += (gyroZrate - steadyStateBias) * dt;  // Remove steady-state bias </code></pre>
         <p>A Kalman filter was also tested, however, this provided very unstable movement so was not used. </p>
