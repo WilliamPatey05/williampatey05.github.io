@@ -79,7 +79,8 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
       <h2>Gimbal control</h2>
     </div>
     <p>We implemented a simple open-loop gimbal control system with derivative damping. The MPU6050 IMU provided orientation data, which was processed using a complementary filter to reduce drift. The filtered angles were then used to drive the servos directly, allowing for stable camera operation during flight.</p>
-</section>
+    </div>
+  </section>
 <section id="data-logging" data-cat="datalogging">
   <div class="wrap">
     <div class="section-head">
@@ -140,8 +141,15 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 </footer>
 </body>
 <script>
-document.querySelectorAll('section[data-cat]').forEach(section => {
-  section.style.display = (cat === 'all' || section.dataset.cat === cat) ? '' : 'none';
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    document.querySelectorAll('section[data-cat]').forEach(section => {
+      section.style.display = (cat === 'all' || section.dataset.cat === cat) ? '' : 'none';
+    });
+  });
 });
 </script>
 </html>
