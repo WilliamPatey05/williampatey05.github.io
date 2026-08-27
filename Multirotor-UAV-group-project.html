@@ -7,6 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
 </head>
 <body>
 
@@ -79,7 +84,27 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
       <h2>Gimbal control</h2>
     </div>
     <p>We implemented a simple open-loop gimbal control system with derivative damping. The MPU6050 IMU provided orientation data, which was processed using a complementary filter to reduce drift. The filtered angles were then used to drive the servos directly, allowing for stable camera operation during flight.</p>
-    </div>
+    <pre><code class="language-cpp">correctPitch = applyDeadband(-errorPitch - (Kd_pitch * derivGyroYrate), 0.5);</code></pre>
+
+<details style="margin-top:8px;">
+  <summary style="cursor:pointer; font-family:monospace; color:var(--amber); font-size:13px;">
+    Show full code
+  </summary>
+  <pre><code class="language-cpp">
+// full function here
+void updateGimbal() {
+  float errorPitch = compAngleY - storedVector[2];
+  float errorYaw = compAngleX - storedVector[0];
+  correctPitch = applyDeadband(-errorPitch - (Kd_pitch * derivGyroYrate), 0.5);
+  correctYaw   = applyDeadband(-errorYaw   - (Kd_yaw   * (derivGyroZrate - steadyStateBias)), 0.5);
+  PitchWrite = constrain(PitchCentre - correctPitch, PitchCentre - 90, PitchCentre - 5);
+  RollWrite  = constrain(RollCentre  + correctRoll,  RollCentre  - 70, RollCentre  + 90);
+  YawWrite   = constrain(YawCentre   + correctYaw,   YawCentre   - 90, YawCentre   + 90);
+}
+  </code></pre>
+</details>
+  
+  </div>
   </section>
 <section id="data-logging" data-cat="datalogging">
   <div class="wrap">
