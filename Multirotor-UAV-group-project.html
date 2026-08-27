@@ -277,7 +277,6 @@ compAngleY = AlphaY * (compAngleY + gyroYrate * dt) + (1 - AlphaY) * pitch;
         });
       });
       </script>
-        <p>Low-pass filtering was used to filter both the angular-rate measurement of roll, pitch and yaw as well as the acceleration recordings in X,Y and Z-directions. Heavier filtering was utilised for the damping term, as well as second order filtering on the acceleration readings to remove noise caused by motor vibrations.</p>
       </div>
 
 
@@ -286,12 +285,429 @@ compAngleY = AlphaY * (compAngleY + gyroYrate * dt) + (1 - AlphaY) * pitch;
     <details class="accordion-item">
       <summary>Control</summary>
       <div class="accordion-body">
-        <p>The flight recorder logged IMU readings and servo positions to an SD card for post-flight analysis.</p>
+        <p>As opposed to using a closed loop PID control system, an open loop control system was favoured, due to its simplicity and access to only one IMU – placing it on the drone body allowed for telemetry data to be recorded during flight. </p>
+        <p>The control system operated from single loop in the Arduino code that runs from setup, until the Arduino loses power. In each loop, the angles are recorded, filtered, and added to the stored angle, then the vector direction the drone is facing is recorded – the direction the gimble will lock to, this direction is saved if: either this is the first loop after the drone has been switched on, or the first loop after the mode has been switched to horizon lock.</p>
+        <pre><code class="language-cpp">float errorPitch = compAngleY - storedVector[2];</code></pre>
+        <p>The relative correction angle to the stored reference is found, then the controller acts on this measurement. A deadband is applied to stop jittering when small angles are applied to the servo. </p>
+        <pre><code class="language-cpp">correctPitch = applyDeadband(-errorPitch - (Kd_pitch * derivGyroYrate), 0.5);
+correctYaw   = applyDeadband(-errorYaw   - (Kd_yaw   * (derivGyroZrate - steadyStateBias)), 0.5);
+ </code></pre>
+        <p>The written angles are constrained to prevent physical collisions of the gimbal with its structure. </p>
+        <pre><code class="language-cpp">     PitchWrite = constrain(PitchCentre - correctPitch, PitchCentre - 90, PitchCentre -5);
+    RollWrite  = constrain(RollCentre  + correctRoll,  RollCentre  - 70, RollCentre  + 90);
+    YawWrite   = constrain(YawCentre   + correctYaw,   YawCentre   - 90, YawCentre   + 90);
+</code></pre>
+<p>The angles are then written to the servos at intervals of 50ms to reduce jittering.</p>
       </div>
     </details>
   </div>
-  
+      <details class="accordion-item">
+      <summary>Tuning</summary>
+      <div class="accordion-body">
+        <p>To improve the response times of the controller, a damping term was added to the control output, which adds a proportion of the current angular rate to the control output. The damping derivative terms applied to the servos were tuned using a mass spring damper model of the servo, using the transit times of the provided servos to find the natural frequency, a sensible damping ratio of ζ=0.7 was selected.</p>
   </div>
+  </div>
+    <details class="accordion-item">
+      <summary>Full code</summary>
+      <div class="accordion-body">
+        <details style="margin-top:8px;">
+      <summary style="cursor:pointer; font-family:monospace; color:var(--amber); font-size:13px;">
+        Show full code
+      </summary>
+<pre><code class="language-cpp">
+        //import libraries
+#include &lt;Adafruit_Sensor.h&gt;
+#include &lt;Wire.h&gt;
+#include &lt;Servo.h&gt;
+#include &lt;math.h&gt;
+#include &lt;SPI.h&gt;
+#include &lt;SD.h&gt;
+
+//-------------------------------------------------------------------
+//I2C functions
+const uint8_t IMUAddress = 0x68;    // AD0 is logic low on the PCB
+const uint16_t I2C_TIMEOUT = 1000;  // Used to check for errors in I2C communication
+
+uint8_t i2cWrite(uint8_t registerAddress, uint8_t data, bool sendStop) {
+  return i2cWrite(registerAddress, &amp;data, 1, sendStop);  // Returns 0 on success
+}
+
+uint8_t i2cWrite(uint8_t registerAddress, uint8_t *data, uint8_t length, bool sendStop) {
+  Wire.beginTransmission(IMUAddress);
+  Wire.write(registerAddress);
+  Wire.write(data, length);
+  uint8_t rcode = Wire.endTransmission(sendStop);  // Returns 0 on success
+  if (rcode) {
+    Serial.print(F("i2cWrite failed: "));
+    Serial.println(rcode);
+  }
+  return rcode;  // See: http://arduino.cc/en/Reference/WireEndTransmission
+}
+
+uint8_t i2cRead(uint8_t registerAddress, uint8_t *data, uint8_t nbytes) {
+  uint32_t timeOutTimer;
+  Wire.beginTransmission(IMUAddress);
+  Wire.write(registerAddress);
+  uint8_t rcode = Wire.endTransmission(false);  // Don't release the bus
+  if (rcode) {
+    Serial.print(F("i2cRead failed: "));
+    Serial.println(rcode);
+    return rcode;  // See: http://arduino.cc/en/Reference/WireEndTransmission
+  }
+  Wire.requestFrom(IMUAddress, nbytes, (uint8_t) true);  // Send a repeated start and then release the bus after reading
+  for (uint8_t i = 0; i &lt; nbytes; i++) {
+    if (Wire.available())
+      data[i] = Wire.read();
+    else {
+      timeOutTimer = micros();
+      while (((micros() - timeOutTimer) &lt; I2C_TIMEOUT) &amp;&amp; !Wire.available())
+        ;
+      if (Wire.available())
+        data[i] = Wire.read();
+      else {
+        Serial.println(F("i2cRead timeout"));
+        return 5;  // This error value is not already taken by endTransmission
+      }
+    }
+  }
+  return 0;  // Success
+}
+
+//-------------------------------------------------------------------
+//Initiate variables
+//-------------------------------------------------------------------
+
+//Initiate servos
+Servo myservoYaw;
+Servo myservoRoll;
+Servo myservoPitch;
+
+//Servo LowPass
+float samplefreq = 50;
+//Declare filter constants
+float AlphaZ = 0.9, AlphaX = 0.992, AlphaY = 0.992;  //Complementary filter constants - higher, more gyro
+
+//alpha for gyro derivative term
+int cutoff = 10;
+float gyroAlpha = 1 - exp(-2 * M_PI * cutoff / samplefreq);
+
+// derivative filter - more noise rejection
+float cutoffDeriv = 2.0; 
+const float derivAlpha = 1 - exp(-2 * M_PI * cutoffDeriv / samplefreq);
+
+//acceleration 1st and 2nd order constants
+float alpha1accel = 0.7;
+float alpha2accel = 0.7;
+
+// Separate filtered gyro rates just for derivative
+float derivGyroX = 0, derivGyroY = 0, derivGyroZ = 0;
+
+//loop storage variable constants
+float accX = 0, accY = 0, accZ = 0;                    //Raw accelerometer data
+float accXfilt = 0, accYfilt = 0, accZfilt = 0;        //Filtered accelerometer data
+float gyroX = 0, gyroY = 0, gyroZ = 0;                 //Raw gyro data
+float filtGyroX = 0, filtGyroY = 0, filtGyroZ = 0;     //Filtered gyro data
+float gyroXangle = 0, gyroYangle = 0, gyroZangle = 0;  //Angle calculate using the gyro only
+float compAngleX = 0, compAngleY = 0, filtAngleZ = 0;  //Calculated angle using a complementary filter
+
+
+float correctionAngleYaw = 0, correctionAnglePitch = 0, correctionAngleRoll = 0;  //Angle to be applied to servos
+
+static uint32_t lastServoUpdate = 0;
+const uint32_t servoUpdateInterval = 20;  // milliseconds, 20ms = 50Hz
+
+int16_t tempRaw;  //Raw temperature readings
+//Steady state correction variables
+static int readingCount = 0;
+static float gyroZsum = 0;
+static float steadyStateBias = 0;
+
+//Psuedo PD constants
+float Kp_roll = 1, Kd_roll = 0.135;
+float Kp_pitch = 1, Kd_pitch = 0.112;
+float Kp_yaw = 1, Kd_yaw = 0.147;
+
+float accXfilt1 = 0, accYfilt1 = 0, accZfilt1 = 0;
+float accXfilt2 = 0, accYfilt2 = 0, accZfilt2 = 0;
+
+
+//for saving for solidworks movement
+float PitchWrite = 0;
+float YawWrite = 0;
+float RollWrite = 0;
+
+//Physical gimble neutral position 
+float PitchCentre = 90;
+float RollCentre = 93;
+float YawCentre = 97;
+
+//Booleans for mode switching
+bool cameraLock = false;   //what gimble mode should be used
+bool VectorTaken = false;  //when fixed mode is switched off, record value of this
+
+//Vectors
+float storedVector[3] = { 0.0, 0.0, 0.0 };  //Vector orientation to lock to
+float Position[3] = { 0.0, 0.0, 0.0 };      //Drone's current orientation
+
+//Transmitter
+int buttonpin = 7;  //Input pin for transmitter
+unsigned long pulseWidthfilt = 0;
+uint32_t timer;
+uint8_t i2cData[14];  // Buffer for I2C data
+
+//Telemetry storage
+const int SD_CS = 10;  // select any digital pin available for this function
+String filename;
+File dataFile;
+
+static float lastPitch = PitchCentre;
+static float lastRoll = RollCentre;
+static float lastYaw = YawCentre;
+
+float lastlog = 0;
+
+float applyDeadband(float value, float band) {
+  if (abs(value) &lt; band) return 0.0;
+  return value;
+}
+
+//Save data to SD card
+void SaveToSD(float tosave[10]) {
+
+  if (dataFile) {
+    dataFile.print(tosave[0], 6);
+    dataFile.print(",");
+    dataFile.print(tosave[1], 6);
+    dataFile.print(",");
+    dataFile.print(tosave[2], 6);
+    dataFile.print(",");
+    dataFile.print(tosave[3], 6);
+    dataFile.print(",");
+    dataFile.print(tosave[4], 6);
+    dataFile.print(",");
+    dataFile.print(tosave[5], 6);
+    dataFile.print(",");
+    dataFile.print(tosave[6], 6);
+    dataFile.print(",");
+    dataFile.print(tosave[7], 6);
+    dataFile.print(",");
+    dataFile.print(tosave[8], 6);
+    dataFile.print(",");
+    dataFile.println(tosave[9], 6);
+  } else {
+    Serial.print("failed");
+  }
+}
+
+//Create a filename that does not yet exist to avoid overwriting old data
+String createFilename(void) {
+  char filename[16];
+  int i = 0;
+
+  do {
+    sprintf(filename, "LOG_%03d.CSV", i++);
+  } while (SD.exists(filename));
+
+  return String(filename);
+}
+
+void setup(void) {
+  Serial.begin(115200);
+
+  Wire.begin();
+  Wire.setClock(50000UL);
+  delay(500);
+
+  while (i2cWrite(0x6B, 0x00, true));  // wake
+  delay(100);
+  while (i2cWrite(0x19, 0x07, true));  // sample rate 1000Hz
+  while (i2cWrite(0x1A, 0x00, true));  // FSYNC off, 260Hz filter
+  while (i2cWrite(0x1B, 0x00, true));  // gyro ±250deg/s
+  while (i2cWrite(0x1C, 0x00, true));  // accel ±2g
+  while (i2cWrite(0x6B, 0x01, true));  // PLL clock
+  delay(50);
+
+  while (i2cRead(0x3B, i2cData, 14));
+  accX = (int16_t)((i2cData[0] &lt;&lt; 8) | i2cData[1]);
+  accY = (int16_t)((i2cData[2] &lt;&lt; 8) | i2cData[3]);
+  accZ = (int16_t)((i2cData[4] &lt;&lt; 8) | i2cData[5]);
+  gyroX = (int16_t)((i2cData[8] &lt;&lt; 8) | i2cData[9]);
+  gyroY = (int16_t)((i2cData[10] &lt;&lt; 8) | i2cData[11]);
+  gyroZ = (int16_t)((i2cData[12] &lt;&lt; 8) | i2cData[13]);
+
+  myservoYaw.attach(3);
+  myservoRoll.attach(9);
+  myservoPitch.attach(5);
+  pinMode(buttonpin, INPUT);
+
+  pinMode(SD_CS, OUTPUT);
+  delay(200);
+  // filename = createFilename();
+  // dataFile = SD.open(filename, FILE_WRITE);
+
+  // timer = micros();
+}
+static uint32_t lastLog = 0;
+
+//-------------------------------------------------------------------
+//loop
+//-------------------------------------------------------------------
+void loop() {
+  //take readings
+  while (i2cRead(0x3B, i2cData, 14))
+    ;
+
+  accX = (int16_t)((i2cData[0] &lt;&lt; 8) | i2cData[1]);
+  accY = (int16_t)((i2cData[2] &lt;&lt; 8) | i2cData[3]);
+  accZ = (int16_t)((i2cData[4] &lt;&lt; 8) | i2cData[5]);
+  tempRaw = (int16_t)((i2cData[6] &lt;&lt; 8) | i2cData[7]);
+  gyroX = (int16_t)((i2cData[8] &lt;&lt; 8) | i2cData[9]);
+  gyroY = (int16_t)((i2cData[10] &lt;&lt; 8) | i2cData[11]);
+  gyroZ = (int16_t)((i2cData[12] &lt;&lt; 8) | i2cData[13]);
+
+  float dt = (double)(micros() - timer) / 1000000;
+  dt = constrain(dt, 0.0005, 0.05);  // clamp runaway dt
+  timer = micros();
+
+  //Gyro filter for complementary filter - low pass
+  filtGyroX = (1 - gyroAlpha) * filtGyroX + gyroAlpha * gyroX;
+  filtGyroY = (1 - gyroAlpha) * filtGyroY + gyroAlpha * gyroY;
+  filtGyroZ = (1 - gyroAlpha) * filtGyroZ + gyroAlpha * gyroZ;
+
+  //Heavily filtered gyro for derivative term - low pass
+  derivGyroX = derivAlpha * gyroX + (1 - derivAlpha) * derivGyroX;
+  derivGyroY = derivAlpha * gyroY + (1 - derivAlpha) * derivGyroY;
+  derivGyroZ = derivAlpha * gyroZ + (1 - derivAlpha) * derivGyroZ;
+
+  //Stage 1 accel filter
+  accXfilt1 = alpha1accel * accXfilt1 + (1 - alpha1accel) * accX;
+  accYfilt1 = alpha1accel * accYfilt1 + (1 - alpha1accel) * accY;
+  accZfilt1 = alpha1accel * accZfilt1 + (1 - alpha1accel) * accZ;
+
+  //Stage 2 to remove motor vibrations
+  accXfilt2 = alpha2accel * accXfilt2 + (1-alpha2accel) * accXfilt1;
+  accYfilt2 = alpha2accel * accYfilt2 + (1-alpha2accel) * accYfilt1;
+  accZfilt2 = alpha2accel * accZfilt2 + (1-alpha2accel) * accZfilt1;
+
+
+  double roll = atan(accYfilt2 / sqrt(accXfilt2 * accXfilt2 + accZfilt2 * accZfilt2)) * RAD_TO_DEG; //Calculate roll from accelerometer readings
+  double pitch = atan2(-accXfilt2, accZfilt2) * RAD_TO_DEG; //Calculate pitch from accelerometer readings
+  double gyroXrate = filtGyroX / 131.0; // Convert to deg/s
+  double gyroYrate = filtGyroY / 131.0; // Convert to deg/s
+  double gyroZrate = filtGyroZ / 131.0; // Convert to deg/s
+  double derivGyroXrate = derivGyroX / 131.0; // Convert to deg/s
+  double derivGyroYrate = derivGyroY / 131.0; // Convert to deg/s
+  double derivGyroZrate = derivGyroZ / 131.0; // Convert to deg/s
+
+  //Take yaw bias readings
+  if (readingCount &lt; 50) {
+    gyroZsum += gyroZrate;
+    readingCount++;
+    if (readingCount == 50) {
+      steadyStateBias = gyroZsum / 50.0;
+      timer = micros();  //Reset timer
+    }
+    return;  // Skip servo control until calibration is complete
+  }
+
+  gyroZangle += (gyroZrate - steadyStateBias) * dt;  //Integrate and remove steady state bias of yaw
+  gyroYangle += gyroYrate * dt;                      //Integrate
+  gyroXangle += gyroXrate * dt;                      //Integrate
+
+  compAngleX = AlphaX * (compAngleX + gyroXrate * dt) + (1 - AlphaX) * roll;                               //Fuse sensor values from accelerometer and gyro
+  compAngleY = AlphaY * (compAngleY + gyroYrate * dt) + (1 - AlphaY) * pitch;                              //Fuse sensor values from accelerometer and gyro
+  filtAngleZ = (AlphaZ * gyroZangle + (1 - AlphaZ) * filtAngleZ);                                          //Exponential moving average
+  float currentVector[3] = { YawCentre + filtAngleZ, RollCentre + compAngleX, PitchCentre + compAngleY };  //Save current vector
+
+  if (false)  //statement added to test gimble without presence of transmitter/ reciever -- true: use mode switching
+  {
+    unsigned long pulseWidth = pulseIn(buttonpin, HIGH);  //read transmitter signal input
+    if (pulseWidth > 1500) 
+    {
+      if (pulseWidth > 1500)  //lock gimble if input from transmitter is higher than a certian value
+      {
+        cameraLock = true;  //Lock gimble to Drone body
+      } 
+      else 
+      {
+        cameraLock = false;  //Lock Gimble to horizon
+      }
+    } 
+    else 
+    {
+      cameraLock = true;  //Failsafe for gimble
+    }
+  }
+
+  if (cameraLock == false)
+  {
+    if (!VectorTaken)
+    {
+        //Store current angles as reference when mode switches
+        storedVector[0] = filtAngleZ;
+        storedVector[1] = compAngleX;
+        storedVector[2] = compAngleY;
+        VectorTaken = true;
+    }
+
+    //Correct relative to stored reference
+    float errorPitch = compAngleY - storedVector[2];
+    float errorRoll  = compAngleX - storedVector[1];
+    float errorYaw   = filtAngleZ - storedVector[0];
+
+    //Calculate gimble correction from error and rate
+    float correctPitch = applyDeadband(-errorPitch - (Kd_pitch * derivGyroYrate), 0.5);
+    float correctRoll  = applyDeadband(-errorRoll  - (Kd_roll  * derivGyroXrate), 0.5);
+    float correctYaw   = applyDeadband(-errorYaw   - (Kd_yaw   * (derivGyroZrate - steadyStateBias)), 0.5);
+
+    //Constrain angles to avoid collisions 
+    PitchWrite = constrain(PitchCentre - correctPitch, PitchCentre - 90, PitchCentre -5);
+    RollWrite  = constrain(RollCentre  + correctRoll,  RollCentre  - 70, RollCentre  + 90);
+    YawWrite   = constrain(YawCentre   + correctYaw,   YawCentre   - 90, YawCentre   + 90);
+
+    if (millis() - lastServoUpdate >= 20)
+    {
+      lastServoUpdate = millis();
+      myservoPitch.write((int)PitchWrite);
+      lastPitch = PitchWrite;
+      myservoRoll.write((int)RollWrite);
+      lastRoll = RollWrite;
+      myservoYaw.write((int)YawWrite);
+      lastYaw = YawWrite;
+    }
+
+    Serial.print(PitchWrite);
+    Serial.print("\t");
+    Serial.print(YawWrite);
+    Serial.print("\t");
+    Serial.print(RollWrite);
+    Serial.print("\t");
+    Serial.print(1/dt);
+    Serial.print("\t");
+    Serial.print("\n");
+  } 
+  else 
+  {
+    VectorTaken = false;  //Ensure horizon vector is taken when mode is switched to horizon mode
+    //Lock gimble
+    myservoPitch.write(PitchCentre);
+    myservoRoll.write(RollCentre);
+    myservoYaw.write(YawCentre);
+  }
+
+  //Save Telemetry data
+  
+  float tosave[10] = { dt, accX, accY, accZ, gyroX, gyroY, gyroZ, PitchWrite, RollWrite, YawWrite };
+  SaveToSD(tosave);
+  if (millis() - lastLog >= 50) 
+  {  // change logging rate
+    lastLog = millis();
+    dataFile.flush();  //Flush periodically
+  }
+}
+</code></pre>
+    </details>
+      </div>
   </section>
 <section id="data-logging" data-cat="datalogging">
   <div class="wrap">
