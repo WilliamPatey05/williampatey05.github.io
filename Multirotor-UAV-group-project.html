@@ -92,21 +92,20 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
         <pre><code class="language-cpp">  double roll = atan(accYfilt2 / sqrt(accXfilt2 * accXfilt2 + accZfilt2 * accZfilt2)) * RAD_TO_DEG; //Calculate roll from accelerometer readings
   double pitch = atan2(-accXfilt2, accZfilt2) * RAD_TO_DEG; //Calculate pitch from accelerometer readings;</code></pre>
         <p>The angle rates were then integrated to obtain the orientation angles and fused with accelerometer data (complementary filtering).</p>
-        <pre><code class="language-cpp">   gyroYangle += gyroYrate * dt;
+        <pre><code class="language-cpp">gyroYangle += gyroYrate * dt;
 compAngleY = AlphaY * (compAngleY + gyroYrate * dt) + (1 - AlphaY) * pitch;
         </code></pre>
         <p>As the gravity vector aligns with the rotation axis for yaw, this drift removal method was not possible so a steady-state bias on start up was recorded and subtracted each loop instead</p>
-        <pre><code class="language-cpp">  if (readingCount < 50) {
-    gyroZsum += gyroZrate;
-    readingCount++;
-    if (readingCount == 50) {
-      steadyStateBias = gyroZsum / 50.0;
-      timer = micros();  //Reset timer
-    }
-    return;  // Skip servo control until calibration is complete
-  }
-</code>
-        <p> Remove steady-state bias fueing integration</p>
+        <pre><code class="language-cpp">  if (readingCount  &lt 50) {
+        gyroZsum += gyroZrate;
+        readingCount++;
+        if (readingCount == 50) {
+          steadyStateBias = gyroZsum / 50.0;
+          timer = micros();  //Reset timer
+        }
+        return;  // Skip servo control until calibration is complete
+      }</code>
+        <p> Remove steady-state bias during integration</p>
         <pre><code class="language-cpp">  gyroZangle += (gyroZrate - steadyStateBias) * dt;  // Remove steady-state bias </code>
         <p>A Kalman filter was also tested, however, this provided very unstable movement so was not used. </p>
         <p>The provided IMU’s angular velocity measurements were initially very noisy, so multiple filtering techniques were employed to obtain a usable signal for the controller to work with.       </div>
