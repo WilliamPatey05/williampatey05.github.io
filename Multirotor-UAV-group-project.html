@@ -34,13 +34,8 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     <p class="subtitle">A <640g> quadcopter designed and built by 6-person group project team. </p>
   </div>
 </header>
-<div class="cat-carousel" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:12px; margin-bottom:32px; border-bottom:1px solid var(--line);">
-  <button class="cat-btn active" data-cat="all">All</button>
-  <button class="cat-btn" data-cat="aero">Aero</button>
-  <button class="cat-btn" data-cat="electronics">Electronics</button>
-  <button class="cat-btn" data-cat="manufacture">Manufacture</button>
-  <button class="cat-btn" data-cat="testing">Testing</button>
-</div>
+
+<p>During my second-year, we were assigned a group project to design a quadcopter UAV less that 640g that houses a payload of a 3-axis gimbal and flight recorder. I was tasked with designing the payload, ran by an Arduino Uno R3. </p>
 <section>
   <div class="wrap">
     <div class="section-head">
@@ -70,6 +65,13 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
   </div>
 </section>
 
+<div class="cat-carousel" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:12px; margin-bottom:32px; border-bottom:1px solid var(--line);">
+  <button class="cat-btn active" data-cat="all">All</button>
+  <button class="cat-btn" data-cat="aero">Aero</button>
+  <button class="cat-btn" data-cat="electronics">Electronics</button>
+  <button class="cat-btn" data-cat="manufacture">Manufacture</button>
+  <button class="cat-btn" data-cat="testing">Testing</button>
+</div>
 <section id="gimbal-control">
   <h3>Open-loop gimbal control</h3>
   <p>blob</p>
@@ -115,4 +117,16 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
   </div>
 </footer>
 </body>
+<script>
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    document.querySelectorAll('[data-cat]').forEach(section => {
+      section.style.display = (cat === 'all' || section.dataset.cat === cat) ? '' : 'none';
+    });
+  });
+});
+</script>
 </html>
