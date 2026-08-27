@@ -522,598 +522,6 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
         </details>
 
 
-        <!-- FULL CODE -->
-
-        <details class="accordion-item">
-
-          <summary>Full code</summary>
-
-          <div class="accordion-body">
-
-            <pre><code class="language-cpp">//import libraries
-  #include &lt;Adafruit_Sensor.h&gt;
-  #include &lt;Wire.h&gt;
-  #include &lt;Servo.h&gt;
-  #include &lt;math.h&gt;
-  #include &lt;SPI.h&gt;
-  #include &lt;SD.h&gt;
-
-  //-------------------------------------------------------------------
-  //I2C functions
-  const uint8_t IMUAddress = 0x68;
-  const uint16_t I2C_TIMEOUT = 1000;
-
-  uint8_t i2cWrite(uint8_t registerAddress, uint8_t data, bool sendStop) {
-    return i2cWrite(registerAddress, &amp;data, 1, sendStop);
-  }
-
-  uint8_t i2cWrite(uint8_t registerAddress, uint8_t *data, uint8_t length, bool sendStop) {
-    Wire.beginTransmission(IMUAddress);
-    Wire.write(registerAddress);
-    Wire.write(data, length);
-
-    uint8_t rcode = Wire.endTransmission(sendStop);
-
-    if (rcode) {
-      Serial.print(F("i2cWrite failed: "));
-      Serial.println(rcode);
-    }
-
-    return rcode;
-  }
-
-  uint8_t i2cRead(uint8_t registerAddress, uint8_t *data, uint8_t nbytes) {
-
-    uint32_t timeOutTimer;
-
-    Wire.beginTransmission(IMUAddress);
-    Wire.write(registerAddress);
-
-    uint8_t rcode = Wire.endTransmission(false);
-
-    if (rcode) {
-      Serial.print(F("i2cRead failed: "));
-      Serial.println(rcode);
-      return rcode;
-    }
-
-    Wire.requestFrom(IMUAddress, nbytes, (uint8_t) true);
-
-    for (uint8_t i = 0; i &lt; nbytes; i++) {
-
-      if (Wire.available()) {
-
-        data[i] = Wire.read();
-
-      } else {
-
-        timeOutTimer = micros();
-
-        while (((micros() - timeOutTimer) &lt; I2C_TIMEOUT) &amp;&amp; !Wire.available())
-          ;
-
-        if (Wire.available()) {
-          data[i] = Wire.read();
-        }
-
-        else {
-          Serial.println(F("i2cRead timeout"));
-          return 5;
-        }
-
-      }
-
-    }
-
-    return 0;
-  }
-
-
-  //-------------------------------------------------------------------
-  //Initiate variables
-  //-------------------------------------------------------------------
-
-  Servo myservoYaw;
-  Servo myservoRoll;
-  Servo myservoPitch;
-
-  float samplefreq = 50;
-
-  float AlphaZ = 0.9;
-  float AlphaX = 0.992;
-  float AlphaY = 0.992;
-
-  int cutoff = 10;
-
-  float gyroAlpha =
-    1 - exp(-2 * M_PI * cutoff / samplefreq);
-
-  float cutoffDeriv = 2.0;
-
-  const float derivAlpha =
-    1 - exp(-2 * M_PI * cutoffDeriv / samplefreq);
-
-  float alpha1accel = 0.7;
-  float alpha2accel = 0.7;
-
-  float derivGyroX = 0;
-  float derivGyroY = 0;
-  float derivGyroZ = 0;
-
-  float accX = 0;
-  float accY = 0;
-  float accZ = 0;
-
-  float gyroX = 0;
-  float gyroY = 0;
-  float gyroZ = 0;
-
-  float filtGyroX = 0;
-  float filtGyroY = 0;
-  float filtGyroZ = 0;
-
-  float gyroXangle = 0;
-  float gyroYangle = 0;
-  float gyroZangle = 0;
-
-  float compAngleX = 0;
-  float compAngleY = 0;
-  float filtAngleZ = 0;
-
-  static uint32_t lastServoUpdate = 0;
-
-  const uint32_t servoUpdateInterval = 20;
-
-  int16_t tempRaw;
-
-  static int readingCount = 0;
-  static float gyroZsum = 0;
-  static float steadyStateBias = 0;
-
-  float Kp_roll = 1;
-  float Kd_roll = 0.135;
-
-  float Kp_pitch = 1;
-  float Kd_pitch = 0.112;
-
-  float Kp_yaw = 1;
-  float Kd_yaw = 0.147;
-
-  float accXfilt1 = 0;
-  float accYfilt1 = 0;
-  float accZfilt1 = 0;
-
-  float accXfilt2 = 0;
-  float accYfilt2 = 0;
-  float accZfilt2 = 0;
-
-  float PitchWrite = 0;
-  float YawWrite = 0;
-  float RollWrite = 0;
-
-  float PitchCentre = 90;
-  float RollCentre = 93;
-  float YawCentre = 97;
-
-  bool cameraLock = false;
-  bool VectorTaken = false;
-
-  float storedVector[3] = {0.0, 0.0, 0.0};
-
-  int buttonpin = 7;
-
-  uint32_t timer;
-
-  uint8_t i2cData[14];
-
-  const int SD_CS = 10;
-
-  String filename;
-  File dataFile;
-
-  static float lastPitch = PitchCentre;
-  static float lastRoll = RollCentre;
-  static float lastYaw = YawCentre;
-
-  float applyDeadband(float value, float band) {
-
-    if (abs(value) &lt; band) {
-      return 0.0;
-    }
-
-    return value;
-  }
-
-
-  //-------------------------------------------------------------------
-  //Save data to SD card
-  //-------------------------------------------------------------------
-
-  void SaveToSD(float tosave[10]) {
-
-    if (dataFile) {
-
-      for (int i = 0; i &lt; 9; i++) {
-
-        dataFile.print(tosave[i], 6);
-        dataFile.print(",");
-
-      }
-
-      dataFile.println(tosave[9], 6);
-
-    }
-
-    else {
-
-      Serial.print("failed");
-
-    }
-
-  }
-
-
-  String createFilename(void) {
-
-    char filename[16];
-
-    int i = 0;
-
-    do {
-
-      sprintf(filename, "LOG_%03d.CSV", i++);
-
-    } while (SD.exists(filename));
-
-    return String(filename);
-
-  }
-
-
-  //-------------------------------------------------------------------
-  //Setup
-  //-------------------------------------------------------------------
-
-  void setup(void) {
-
-    Serial.begin(115200);
-
-    Wire.begin();
-    Wire.setClock(50000UL);
-
-    delay(500);
-
-    while (i2cWrite(0x6B, 0x00, true));
-
-    delay(100);
-
-    while (i2cWrite(0x19, 0x07, true));
-    while (i2cWrite(0x1A, 0x00, true));
-    while (i2cWrite(0x1B, 0x00, true));
-    while (i2cWrite(0x1C, 0x00, true));
-    while (i2cWrite(0x6B, 0x01, true));
-
-    delay(50);
-
-    myservoYaw.attach(3);
-    myservoRoll.attach(9);
-    myservoPitch.attach(5);
-
-    pinMode(buttonpin, INPUT);
-
-    pinMode(SD_CS, OUTPUT);
-
-    delay(200);
-
-    timer = micros();
-
-  }
-
-
-  static uint32_t lastLog = 0;
-
-
-  //-------------------------------------------------------------------
-  //Loop
-  //-------------------------------------------------------------------
-
-  void loop() {
-
-    while (i2cRead(0x3B, i2cData, 14))
-      ;
-
-    accX = (int16_t)((i2cData[0] &lt;&lt; 8) | i2cData[1]);
-    accY = (int16_t)((i2cData[2] &lt;&lt; 8) | i2cData[3]);
-    accZ = (int16_t)((i2cData[4] &lt;&lt; 8) | i2cData[5]);
-
-    gyroX = (int16_t)((i2cData[8] &lt;&lt; 8) | i2cData[9]);
-    gyroY = (int16_t)((i2cData[10] &lt;&lt; 8) | i2cData[11]);
-    gyroZ = (int16_t)((i2cData[12] &lt;&lt; 8) | i2cData[13]);
-
-    float dt =
-      (double)(micros() - timer) / 1000000;
-
-    dt = constrain(dt, 0.0005, 0.05);
-
-    timer = micros();
-
-
-    filtGyroX =
-      (1 - gyroAlpha) * filtGyroX +
-      gyroAlpha * gyroX;
-
-    filtGyroY =
-      (1 - gyroAlpha) * filtGyroY +
-      gyroAlpha * gyroY;
-
-    filtGyroZ =
-      (1 - gyroAlpha) * filtGyroZ +
-      gyroAlpha * gyroZ;
-
-
-    derivGyroX =
-      derivAlpha * gyroX +
-      (1 - derivAlpha) * derivGyroX;
-
-    derivGyroY =
-      derivAlpha * gyroY +
-      (1 - derivAlpha) * derivGyroY;
-
-    derivGyroZ =
-      derivAlpha * gyroZ +
-      (1 - derivAlpha) * derivGyroZ;
-
-
-    accXfilt1 =
-      alpha1accel * accXfilt1 +
-      (1 - alpha1accel) * accX;
-
-    accYfilt1 =
-      alpha1accel * accYfilt1 +
-      (1 - alpha1accel) * accY;
-
-    accZfilt1 =
-      alpha1accel * accZfilt1 +
-      (1 - alpha1accel) * accZ;
-
-
-    accXfilt2 =
-      alpha2accel * accXfilt2 +
-      (1 - alpha2accel) * accXfilt1;
-
-    accYfilt2 =
-      alpha2accel * accYfilt2 +
-      (1 - alpha2accel) * accYfilt1;
-
-    accZfilt2 =
-      alpha2accel * accZfilt2 +
-      (1 - alpha2accel) * accZfilt1;
-
-
-    double roll =
-      atan(accYfilt2 /
-      sqrt(accXfilt2 * accXfilt2 +
-      accZfilt2 * accZfilt2))
-      * RAD_TO_DEG;
-
-    double pitch =
-      atan2(-accXfilt2, accZfilt2)
-      * RAD_TO_DEG;
-
-
-    double gyroXrate = filtGyroX / 131.0;
-    double gyroYrate = filtGyroY / 131.0;
-    double gyroZrate = filtGyroZ / 131.0;
-
-    double derivGyroXrate = derivGyroX / 131.0;
-    double derivGyroYrate = derivGyroY / 131.0;
-    double derivGyroZrate = derivGyroZ / 131.0;
-
-
-    if (readingCount &lt; 50) {
-
-      gyroZsum += gyroZrate;
-
-      readingCount++;
-
-      if (readingCount == 50) {
-
-        steadyStateBias =
-          gyroZsum / 50.0;
-
-        timer = micros();
-
-      }
-
-      return;
-
-    }
-
-
-    gyroZangle +=
-      (gyroZrate - steadyStateBias) * dt;
-
-    gyroYangle += gyroYrate * dt;
-
-    gyroXangle += gyroXrate * dt;
-
-
-    compAngleX =
-      AlphaX *
-      (compAngleX + gyroXrate * dt)
-      + (1 - AlphaX) * roll;
-
-    compAngleY =
-      AlphaY *
-      (compAngleY + gyroYrate * dt)
-      + (1 - AlphaY) * pitch;
-
-    filtAngleZ =
-      AlphaZ * gyroZangle +
-      (1 - AlphaZ) * filtAngleZ;
-
-
-    if (false) {
-
-      unsigned long pulseWidth =
-        pulseIn(buttonpin, HIGH);
-
-      if (pulseWidth > 1500) {
-
-        cameraLock = true;
-
-      }
-
-      else {
-
-        cameraLock = false;
-
-      }
-
-    }
-
-
-    if (cameraLock == false) {
-
-      if (!VectorTaken) {
-
-        storedVector[0] = filtAngleZ;
-        storedVector[1] = compAngleX;
-        storedVector[2] = compAngleY;
-
-        VectorTaken = true;
-
-      }
-
-
-      float errorPitch =
-        compAngleY - storedVector[2];
-
-      float errorRoll =
-        compAngleX - storedVector[1];
-
-      float errorYaw =
-        filtAngleZ - storedVector[0];
-
-
-      float correctPitch =
-        applyDeadband(
-          -errorPitch -
-          (Kd_pitch * derivGyroYrate),
-          0.5
-        );
-
-      float correctRoll =
-        applyDeadband(
-          -errorRoll -
-          (Kd_roll * derivGyroXrate),
-          0.5
-        );
-
-      float correctYaw =
-        applyDeadband(
-          -errorYaw -
-          (Kd_yaw *
-          (derivGyroZrate - steadyStateBias)),
-          0.5
-        );
-
-
-      PitchWrite =
-        constrain(
-          PitchCentre - correctPitch,
-          PitchCentre - 90,
-          PitchCentre - 5
-        );
-
-      RollWrite =
-        constrain(
-          RollCentre + correctRoll,
-          RollCentre - 70,
-          RollCentre + 90
-        );
-
-      YawWrite =
-        constrain(
-          YawCentre + correctYaw,
-          YawCentre - 90,
-          YawCentre + 90
-        );
-
-
-      if (millis() - lastServoUpdate >= servoUpdateInterval) {
-
-        lastServoUpdate = millis();
-
-        myservoPitch.write((int)PitchWrite);
-        lastPitch = PitchWrite;
-
-        myservoRoll.write((int)RollWrite);
-        lastRoll = RollWrite;
-
-        myservoYaw.write((int)YawWrite);
-        lastYaw = YawWrite;
-
-      }
-
-
-      Serial.print(PitchWrite);
-      Serial.print("\t");
-
-      Serial.print(YawWrite);
-      Serial.print("\t");
-
-      Serial.print(RollWrite);
-      Serial.print("\t");
-
-      Serial.print(1 / dt);
-      Serial.print("\n");
-
-    }
-
-    else {
-
-      VectorTaken = false;
-
-      myservoPitch.write(PitchCentre);
-      myservoRoll.write(RollCentre);
-      myservoYaw.write(YawCentre);
-
-    }
-
-
-    float tosave[10] = {
-      dt,
-      accX,
-      accY,
-      accZ,
-      gyroX,
-      gyroY,
-      gyroZ,
-      PitchWrite,
-      RollWrite,
-      YawWrite
-    };
-
-
-    SaveToSD(tosave);
-
-
-    if (millis() - lastLog >= 50) {
-
-      lastLog = millis();
-
-      dataFile.flush();
-
-    }
-
-  }</code></pre>
-
-          </div>
-
-        </details>
-
-
       </div>
 
     </div>
@@ -1138,6 +546,598 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     <p>The electronics suite included the flight computer, receiver, camera module, and gimbal control system. Careful attention was paid to wiring and power distribution to ensure reliable operation of all components during flight.</p>
   </div>
 </section>
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Full Code</span>
+      <h2>Full Code</h2>
+    </div>
+    <p> Complete Arduino code that was ran on the Arduino board.</p>
+    <details style="margin-top:8px;">
+      <summary style="cursor:pointer; font-family:monospace; color:var(--amber); font-size:13px;">
+        Show full code
+      </summary>
+      
+      <pre><code class="language-cpp">//import libraries
+        #include &lt;Adafruit_Sensor.h&gt;
+        #include &lt;Wire.h&gt;
+        #include &lt;Servo.h&gt;
+        #include &lt;math.h&gt;
+        #include &lt;SPI.h&gt;
+        #include &lt;SD.h&gt;
+
+        //-------------------------------------------------------------------
+        //I2C functions
+        const uint8_t IMUAddress = 0x68;
+        const uint16_t I2C_TIMEOUT = 1000;
+
+        uint8_t i2cWrite(uint8_t registerAddress, uint8_t data, bool sendStop) {
+          return i2cWrite(registerAddress, &amp;data, 1, sendStop);
+        }
+
+        uint8_t i2cWrite(uint8_t registerAddress, uint8_t *data, uint8_t length, bool sendStop) {
+          Wire.beginTransmission(IMUAddress);
+          Wire.write(registerAddress);
+          Wire.write(data, length);
+
+          uint8_t rcode = Wire.endTransmission(sendStop);
+
+          if (rcode) {
+            Serial.print(F("i2cWrite failed: "));
+            Serial.println(rcode);
+          }
+
+          return rcode;
+        }
+
+        uint8_t i2cRead(uint8_t registerAddress, uint8_t *data, uint8_t nbytes) {
+
+          uint32_t timeOutTimer;
+
+          Wire.beginTransmission(IMUAddress);
+          Wire.write(registerAddress);
+
+          uint8_t rcode = Wire.endTransmission(false);
+
+          if (rcode) {
+            Serial.print(F("i2cRead failed: "));
+            Serial.println(rcode);
+            return rcode;
+          }
+
+          Wire.requestFrom(IMUAddress, nbytes, (uint8_t) true);
+
+          for (uint8_t i = 0; i &lt; nbytes; i++) {
+
+            if (Wire.available()) {
+
+              data[i] = Wire.read();
+
+            } else {
+
+              timeOutTimer = micros();
+
+              while (((micros() - timeOutTimer) &lt; I2C_TIMEOUT) &amp;&amp; !Wire.available())
+                ;
+
+              if (Wire.available()) {
+                data[i] = Wire.read();
+              }
+
+              else {
+                Serial.println(F("i2cRead timeout"));
+                return 5;
+              }
+
+            }
+
+          }
+
+          return 0;
+        }
+
+
+        //-------------------------------------------------------------------
+        //Initiate variables
+        //-------------------------------------------------------------------
+
+        Servo myservoYaw;
+        Servo myservoRoll;
+        Servo myservoPitch;
+
+        float samplefreq = 50;
+
+        float AlphaZ = 0.9;
+        float AlphaX = 0.992;
+        float AlphaY = 0.992;
+
+        int cutoff = 10;
+
+        float gyroAlpha =
+          1 - exp(-2 * M_PI * cutoff / samplefreq);
+
+        float cutoffDeriv = 2.0;
+
+        const float derivAlpha =
+          1 - exp(-2 * M_PI * cutoffDeriv / samplefreq);
+
+        float alpha1accel = 0.7;
+        float alpha2accel = 0.7;
+
+        float derivGyroX = 0;
+        float derivGyroY = 0;
+        float derivGyroZ = 0;
+
+        float accX = 0;
+        float accY = 0;
+        float accZ = 0;
+
+        float gyroX = 0;
+        float gyroY = 0;
+        float gyroZ = 0;
+
+        float filtGyroX = 0;
+        float filtGyroY = 0;
+        float filtGyroZ = 0;
+
+        float gyroXangle = 0;
+        float gyroYangle = 0;
+        float gyroZangle = 0;
+
+        float compAngleX = 0;
+        float compAngleY = 0;
+        float filtAngleZ = 0;
+
+        static uint32_t lastServoUpdate = 0;
+
+        const uint32_t servoUpdateInterval = 20;
+
+        int16_t tempRaw;
+
+        static int readingCount = 0;
+        static float gyroZsum = 0;
+        static float steadyStateBias = 0;
+
+        float Kp_roll = 1;
+        float Kd_roll = 0.135;
+
+        float Kp_pitch = 1;
+        float Kd_pitch = 0.112;
+
+        float Kp_yaw = 1;
+        float Kd_yaw = 0.147;
+
+        float accXfilt1 = 0;
+        float accYfilt1 = 0;
+        float accZfilt1 = 0;
+
+        float accXfilt2 = 0;
+        float accYfilt2 = 0;
+        float accZfilt2 = 0;
+
+        float PitchWrite = 0;
+        float YawWrite = 0;
+        float RollWrite = 0;
+
+        float PitchCentre = 90;
+        float RollCentre = 93;
+        float YawCentre = 97;
+
+        bool cameraLock = false;
+        bool VectorTaken = false;
+
+        float storedVector[3] = {0.0, 0.0, 0.0};
+
+        int buttonpin = 7;
+
+        uint32_t timer;
+
+        uint8_t i2cData[14];
+
+        const int SD_CS = 10;
+
+        String filename;
+        File dataFile;
+
+        static float lastPitch = PitchCentre;
+        static float lastRoll = RollCentre;
+        static float lastYaw = YawCentre;
+
+        float applyDeadband(float value, float band) {
+
+          if (abs(value) &lt; band) {
+            return 0.0;
+          }
+
+          return value;
+        }
+
+
+        //-------------------------------------------------------------------
+        //Save data to SD card
+        //-------------------------------------------------------------------
+
+        void SaveToSD(float tosave[10]) {
+
+          if (dataFile) {
+
+            for (int i = 0; i &lt; 9; i++) {
+
+              dataFile.print(tosave[i], 6);
+              dataFile.print(",");
+
+            }
+
+            dataFile.println(tosave[9], 6);
+
+          }
+
+          else {
+
+            Serial.print("failed");
+
+          }
+
+        }
+
+
+        String createFilename(void) {
+
+          char filename[16];
+
+          int i = 0;
+
+          do {
+
+            sprintf(filename, "LOG_%03d.CSV", i++);
+
+          } while (SD.exists(filename));
+
+          return String(filename);
+
+        }
+
+
+        //-------------------------------------------------------------------
+        //Setup
+        //-------------------------------------------------------------------
+
+        void setup(void) {
+
+          Serial.begin(115200);
+
+          Wire.begin();
+          Wire.setClock(50000UL);
+
+          delay(500);
+
+          while (i2cWrite(0x6B, 0x00, true));
+
+          delay(100);
+
+          while (i2cWrite(0x19, 0x07, true));
+          while (i2cWrite(0x1A, 0x00, true));
+          while (i2cWrite(0x1B, 0x00, true));
+          while (i2cWrite(0x1C, 0x00, true));
+          while (i2cWrite(0x6B, 0x01, true));
+
+          delay(50);
+
+          myservoYaw.attach(3);
+          myservoRoll.attach(9);
+          myservoPitch.attach(5);
+
+          pinMode(buttonpin, INPUT);
+
+          pinMode(SD_CS, OUTPUT);
+
+          delay(200);
+
+          timer = micros();
+
+        }
+
+
+        static uint32_t lastLog = 0;
+
+
+        //-------------------------------------------------------------------
+        //Loop
+        //-------------------------------------------------------------------
+
+        void loop() {
+
+          while (i2cRead(0x3B, i2cData, 14))
+            ;
+
+          accX = (int16_t)((i2cData[0] &lt;&lt; 8) | i2cData[1]);
+          accY = (int16_t)((i2cData[2] &lt;&lt; 8) | i2cData[3]);
+          accZ = (int16_t)((i2cData[4] &lt;&lt; 8) | i2cData[5]);
+
+          gyroX = (int16_t)((i2cData[8] &lt;&lt; 8) | i2cData[9]);
+          gyroY = (int16_t)((i2cData[10] &lt;&lt; 8) | i2cData[11]);
+          gyroZ = (int16_t)((i2cData[12] &lt;&lt; 8) | i2cData[13]);
+
+          float dt =
+            (double)(micros() - timer) / 1000000;
+
+          dt = constrain(dt, 0.0005, 0.05);
+
+          timer = micros();
+
+
+          filtGyroX =
+            (1 - gyroAlpha) * filtGyroX +
+            gyroAlpha * gyroX;
+
+          filtGyroY =
+            (1 - gyroAlpha) * filtGyroY +
+            gyroAlpha * gyroY;
+
+          filtGyroZ =
+            (1 - gyroAlpha) * filtGyroZ +
+            gyroAlpha * gyroZ;
+
+
+          derivGyroX =
+            derivAlpha * gyroX +
+            (1 - derivAlpha) * derivGyroX;
+
+          derivGyroY =
+            derivAlpha * gyroY +
+            (1 - derivAlpha) * derivGyroY;
+
+          derivGyroZ =
+            derivAlpha * gyroZ +
+            (1 - derivAlpha) * derivGyroZ;
+
+
+          accXfilt1 =
+            alpha1accel * accXfilt1 +
+            (1 - alpha1accel) * accX;
+
+          accYfilt1 =
+            alpha1accel * accYfilt1 +
+            (1 - alpha1accel) * accY;
+
+          accZfilt1 =
+            alpha1accel * accZfilt1 +
+            (1 - alpha1accel) * accZ;
+
+
+          accXfilt2 =
+            alpha2accel * accXfilt2 +
+            (1 - alpha2accel) * accXfilt1;
+
+          accYfilt2 =
+            alpha2accel * accYfilt2 +
+            (1 - alpha2accel) * accYfilt1;
+
+          accZfilt2 =
+            alpha2accel * accZfilt2 +
+            (1 - alpha2accel) * accZfilt1;
+
+
+          double roll =
+            atan(accYfilt2 /
+            sqrt(accXfilt2 * accXfilt2 +
+            accZfilt2 * accZfilt2))
+            * RAD_TO_DEG;
+
+          double pitch =
+            atan2(-accXfilt2, accZfilt2)
+            * RAD_TO_DEG;
+
+
+          double gyroXrate = filtGyroX / 131.0;
+          double gyroYrate = filtGyroY / 131.0;
+          double gyroZrate = filtGyroZ / 131.0;
+
+          double derivGyroXrate = derivGyroX / 131.0;
+          double derivGyroYrate = derivGyroY / 131.0;
+          double derivGyroZrate = derivGyroZ / 131.0;
+
+
+          if (readingCount &lt; 50) {
+
+            gyroZsum += gyroZrate;
+
+            readingCount++;
+
+            if (readingCount == 50) {
+
+              steadyStateBias =
+                gyroZsum / 50.0;
+
+              timer = micros();
+
+            }
+
+            return;
+
+          }
+
+
+          gyroZangle +=
+            (gyroZrate - steadyStateBias) * dt;
+
+          gyroYangle += gyroYrate * dt;
+
+          gyroXangle += gyroXrate * dt;
+
+
+          compAngleX =
+            AlphaX *
+            (compAngleX + gyroXrate * dt)
+            + (1 - AlphaX) * roll;
+
+          compAngleY =
+            AlphaY *
+            (compAngleY + gyroYrate * dt)
+            + (1 - AlphaY) * pitch;
+
+          filtAngleZ =
+            AlphaZ * gyroZangle +
+            (1 - AlphaZ) * filtAngleZ;
+
+
+          if (false) {
+
+            unsigned long pulseWidth =
+              pulseIn(buttonpin, HIGH);
+
+            if (pulseWidth > 1500) {
+
+              cameraLock = true;
+
+            }
+
+            else {
+
+              cameraLock = false;
+
+            }
+
+          }
+
+
+          if (cameraLock == false) {
+
+            if (!VectorTaken) {
+
+              storedVector[0] = filtAngleZ;
+              storedVector[1] = compAngleX;
+              storedVector[2] = compAngleY;
+
+              VectorTaken = true;
+
+            }
+
+
+            float errorPitch =
+              compAngleY - storedVector[2];
+
+            float errorRoll =
+              compAngleX - storedVector[1];
+
+            float errorYaw =
+              filtAngleZ - storedVector[0];
+
+
+            float correctPitch =
+              applyDeadband(
+                -errorPitch -
+                (Kd_pitch * derivGyroYrate),
+                0.5
+              );
+
+            float correctRoll =
+              applyDeadband(
+                -errorRoll -
+                (Kd_roll * derivGyroXrate),
+                0.5
+              );
+
+            float correctYaw =
+              applyDeadband(
+                -errorYaw -
+                (Kd_yaw *
+                (derivGyroZrate - steadyStateBias)),
+                0.5
+              );
+
+
+            PitchWrite =
+              constrain(
+                PitchCentre - correctPitch,
+                PitchCentre - 90,
+                PitchCentre - 5
+              );
+
+            RollWrite =
+              constrain(
+                RollCentre + correctRoll,
+                RollCentre - 70,
+                RollCentre + 90
+              );
+
+            YawWrite =
+              constrain(
+                YawCentre + correctYaw,
+                YawCentre - 90,
+                YawCentre + 90
+              );
+
+
+            if (millis() - lastServoUpdate >= servoUpdateInterval) {
+
+              lastServoUpdate = millis();
+
+              myservoPitch.write((int)PitchWrite);
+              lastPitch = PitchWrite;
+
+              myservoRoll.write((int)RollWrite);
+              lastRoll = RollWrite;
+
+              myservoYaw.write((int)YawWrite);
+              lastYaw = YawWrite;
+
+            }
+
+
+            Serial.print(PitchWrite);
+            Serial.print("\t");
+
+            Serial.print(YawWrite);
+            Serial.print("\t");
+
+            Serial.print(RollWrite);
+            Serial.print("\t");
+
+            Serial.print(1 / dt);
+            Serial.print("\n");
+
+          }
+
+          else {
+
+            VectorTaken = false;
+
+            myservoPitch.write(PitchCentre);
+            myservoRoll.write(RollCentre);
+            myservoYaw.write(YawCentre);
+
+          }
+
+
+          float tosave[10] = {
+            dt,
+            accX,
+            accY,
+            accZ,
+            gyroX,
+            gyroY,
+            gyroZ,
+            PitchWrite,
+            RollWrite,
+            YawWrite
+          };
+
+
+          SaveToSD(tosave);
+
+
+          if (millis() - lastLog >= 50) {
+
+            lastLog = millis();
+
+            dataFile.flush();
+
+          }
+
+        }</code></pre>
+    </details>
+  </div>
 
 <section>
   <div class="wrap">
