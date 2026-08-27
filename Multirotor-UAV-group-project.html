@@ -39,7 +39,7 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     <p class="subtitle">A <640g> quadcopter designed and built by 6-person group project team. </p>
   </div>
 </header>
-<div class="wrap"><p>During my second-year, we were assigned a group project to design a quadcopter UAV less that 640g that houses a payload of a 3-axis gimbal and flight recorder. I was tasked with designing the payload, ran by an Arduino Uno R3. </p></div>
+<div class="wrap"><p>During my second-year at the University of Southampton, we were assigned a group project to design a quadcopter UAV weighing less than 640g that houses a payload of a 3-axis gimbal and flight recorder. I was tasked with designing the payload, ran by an Arduino Uno R3. </p></div>
 <section>
   <div class="wrap">
     <div class="section-head">
@@ -76,33 +76,45 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     <button class="cat-btn" data-cat="datalogging">Data logging</button>
     <button class="cat-btn" data-cat="electronics">Electronics</button>
   </div>
-</div>
-<section id="gimbal-control" data-cat="gimbal">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="tag">Control</span>
-      <h2>Gimbal control</h2>
-    </div>
-    <p>We implemented a simple open-loop gimbal control system with derivative damping. The MPU6050 IMU provided orientation data, which was processed using a complementary filter to reduce drift. The filtered angles were then used to drive the servos directly, allowing for stable camera operation during flight.</p>
-    <pre><code class="language-cpp">correctPitch = applyDeadband(-errorPitch - (Kd_pitch * derivGyroYrate), 0.5);</code></pre>
+  </div>
+    <section id="overview">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="tag">Overview</span>
+        <h2>Project overview</h2>
+      </div>
+      <p>The gimbal had to be controlled using an Arduino Uno R3 using 3 provided 9g servo motors and an MPU6050 IMU. To simplify design, an open loop control system with the IMU placed on the servo body was used with an addition damping[wp1.1] term to improve the speed of the response. The gimbal also had to feature a horizon or body locking function that could be activated using a switch on the radio transmitter. The horizon lock, points towards a certain stored vector whereas the body lock forces the gimbal to faces forwards (servos all set to 90°).  </div>
+  </section>
+  <section id="gimbal-control" data-cat="gimbal">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="tag">Control</span>
+        <h2>Gimbal control</h2>
+      </div>
+      <p>We implemented a simple open-loop gimbal control system with derivative damping. The MPU6050 IMU provided orientation data, which was processed using a complementary filter to reduce drift. The filtered angles were then used to drive the servos directly, allowing for stable camera operation during flight.</p>
+      <div class="accordion">
 
-<details style="margin-top:8px;">
-  <summary style="cursor:pointer; font-family:monospace; color:var(--amber); font-size:13px;">
-    Show full code
-  </summary>
-  <pre><code class="language-cpp">
-// full function here
-void updateGimbal() {
-  float errorPitch = compAngleY - storedVector[2];
-  float errorYaw = compAngleX - storedVector[0];
-  correctPitch = applyDeadband(-errorPitch - (Kd_pitch * derivGyroYrate), 0.5);
-  correctYaw   = applyDeadband(-errorYaw   - (Kd_yaw   * (derivGyroZrate - steadyStateBias)), 0.5);
-  PitchWrite = constrain(PitchCentre - correctPitch, PitchCentre - 90, PitchCentre - 5);
-  RollWrite  = constrain(RollCentre  + correctRoll,  RollCentre  - 70, RollCentre  + 90);
-  YawWrite   = constrain(YawCentre   + correctYaw,   YawCentre   - 90, YawCentre   + 90);
-}
-  </code></pre>
-</details>
+    <details class="accordion-item">
+      <summary>Gimbal Control</summary>
+      <div class="accordion-body">
+        <p>We implemented a simple open-loop gimbal control system with derivative damping. The MPU6050 IMU provided orientation data, processed through a complementary filter to reduce drift.</p>
+      </div>
+    </details>
+
+    <details class="accordion-item">
+      <summary>Data Logging</summary>
+      <div class="accordion-body">
+        <p>The flight recorder logged IMU readings and servo positions to an SD card for post-flight analysis.</p>
+      </div>
+    </details>
+
+    <details class="accordion-item">
+      <summary>Electronics</summary>
+      <div class="accordion-body">
+        <p>Flight computer, receiver, camera module, and gimbal control system — with careful attention paid to wiring and power distribution.</p>
+      </div>
+    </details>
+  </div>
   
   </div>
   </section>

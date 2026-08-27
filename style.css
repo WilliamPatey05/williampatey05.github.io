@@ -416,3 +416,46 @@ a:focus-visible, button:focus-visible {
   cursor: pointer;
 }
 .cat-btn.active, .cat-btn:hover { border-color: var(--amber); color: var(--amber); }
+.accordion {
+  border: 1px solid var(--line);
+}
+
+.accordion-item {
+  border-bottom: 1px solid var(--line);
+}
+.accordion-item:last-child { border-bottom: none; }
+
+.accordion-item summary {
+  padding: 16px 20px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text);
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* hide default browser triangle, add our own arrow */
+.accordion-item summary::-webkit-details-marker { display: none; }
+
+.accordion-item summary::after {
+  content: "+";
+  color: var(--amber);
+  font-size: 18px;
+}
+
+.accordion-item[open] summary::after {
+  content: "–";
+}
+
+.accordion-item summary:hover {
+  color: var(--amber);
+}
+
+.accordion-body {
+  padding: 0 20px 20px;
+  color: var(--text-dim);
+  font-size: 14.5px;
+}
