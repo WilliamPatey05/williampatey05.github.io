@@ -85,20 +85,24 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
         <span class="tag">Control</span>
         <h2>Gimbal control</h2>
       </div>
-      <p>The gimbal had to be controlled using an Arduino Uno R3 using 3 provided 9g servo motors and an MPU6050 IMU. To simplify design, an open loop control system with the IMU placed on the servo body was used with an addition damping[wp1.1] term to improve the speed of the response. The gimbal also had to feature a horizon or body locking function that could be activated using a switch on the radio transmitter. The horizon lock, points towards a certain stored vector whereas the body lock forces the gimbal to faces forwards (servos all set to 90°).      <div class="accordion">
+      <p>The gimbal had to be controlled using an Arduino Uno R3 using 3 provided 9g servo motors and an MPU6050 IMU. To simplify design, an open loop control system with the IMU placed on the servo body was used with an addition damping[wp1.1] term to improve the speed of the response. The gimbal also had to feature a horizon or body locking function that could be activated using a switch on the radio transmitter. The horizon lock, points towards a certain stored vector whereas the body lock forces the gimbal to faces forwards (servos all set to 90°).</p>      
+      <div class="accordion">
 
     <details class="accordion-item">
       <summary>Filtering</summary>
       <div class="accordion-body">
         <p>The provided IMU had significant sensor drift which had to be removed before the signal was usable. Using the gravity vector, the pitch and roll readings were calculated using accelerometer readings.</p>
-        <pre><code class="language-cpp">  double roll = atan(accYfilt2 / sqrt(accXfilt2 * accXfilt2 + accZfilt2 * accZfilt2)) * RAD_TO_DEG; //Calculate roll from accelerometer readings
-  double pitch = atan2(-accXfilt2, accZfilt2) * RAD_TO_DEG; //Calculate pitch from accelerometer readings;</code></pre>
+        <pre><code class="language-cpp">  
+        double roll = atan(accYfilt2 / sqrt(accXfilt2 * accXfilt2 + accZfilt2 * accZfilt2)) * RAD_TO_DEG; //Calculate roll from accelerometer readings
+        double pitch = atan2(-accXfilt2, accZfilt2) * RAD_TO_DEG; //Calculate pitch from accelerometer readings;</code></pre>
         <p>The angle rates were then integrated to obtain the orientation angles and fused with accelerometer data (complementary filtering).</p>
-        <pre><code class="language-cpp">gyroYangle += gyroYrate * dt;
-compAngleY = AlphaY * (compAngleY + gyroYrate * dt) + (1 - AlphaY) * pitch;
+        <pre><code class="language-cpp">
+        gyroYangle += gyroYrate * dt;
+        compAngleY = AlphaY * (compAngleY + gyroYrate * dt) + (1 - AlphaY) * pitch;
         </code></pre>
         <p>As the gravity vector aligns with the rotation axis for yaw, this drift removal method was not possible so a steady-state bias on start up was recorded and subtracted each loop instead</p>
-        <pre><code class="language-cpp">  if (readingCount  &lt; 50) {
+        <pre><code class="language-cpp">  
+        if (readingCount  &lt; 50) {
         gyroZsum += gyroZrate;
         readingCount++;
         if (readingCount == 50) {
@@ -289,15 +293,16 @@ compAngleY = AlphaY * (compAngleY + gyroYrate * dt) + (1 - AlphaY) * pitch;
         <p>The control system operated from single loop in the Arduino code that runs from setup, until the Arduino loses power. In each loop, the angles are recorded, filtered, and added to the stored angle, then the vector direction the drone is facing is recorded – the direction the gimble will lock to, this direction is saved if: either this is the first loop after the drone has been switched on, or the first loop after the mode has been switched to horizon lock.</p>
         <pre><code class="language-cpp">float errorPitch = compAngleY - storedVector[2];</code></pre>
         <p>The relative correction angle to the stored reference is found, then the controller acts on this measurement. A deadband is applied to stop jittering when small angles are applied to the servo. </p>
-        <pre><code class="language-cpp">correctPitch = applyDeadband(-errorPitch - (Kd_pitch * derivGyroYrate), 0.5);
-correctYaw   = applyDeadband(-errorYaw   - (Kd_yaw   * (derivGyroZrate - steadyStateBias)), 0.5);
- </code></pre>
+        <pre><code class="language-cpp">
+          correctPitch = applyDeadband(-errorPitch - (Kd_pitch * derivGyroYrate), 0.5);
+          correctYaw   = applyDeadband(-errorYaw   - (Kd_yaw   * (derivGyroZrate - steadyStateBias)), 0.5);
+        </code></pre>
         <p>The written angles are constrained to prevent physical collisions of the gimbal with its structure. </p>
         <pre><code class="language-cpp">     PitchWrite = constrain(PitchCentre - correctPitch, PitchCentre - 90, PitchCentre -5);
-    RollWrite  = constrain(RollCentre  + correctRoll,  RollCentre  - 70, RollCentre  + 90);
-    YawWrite   = constrain(YawCentre   + correctYaw,   YawCentre   - 90, YawCentre   + 90);
-</code></pre>
-<p>The angles are then written to the servos at intervals of 50ms to reduce jittering.</p>
+          RollWrite  = constrain(RollCentre  + correctRoll,  RollCentre  - 70, RollCentre  + 90);
+          YawWrite   = constrain(YawCentre   + correctYaw,   YawCentre   - 90, YawCentre   + 90);
+        </code></pre>
+        <p>The angles are then written to the servos at intervals of 50ms to reduce jittering.</p>
       </div>
     </details>
   </div>
@@ -305,16 +310,13 @@ correctYaw   = applyDeadband(-errorYaw   - (Kd_yaw   * (derivGyroZrate - steadyS
       <summary>Tuning</summary>
       <div class="accordion-body">
         <p>To improve the response times of the controller, a damping term was added to the control output, which adds a proportion of the current angular rate to the control output. The damping derivative terms applied to the servos were tuned using a mass spring damper model of the servo, using the transit times of the provided servos to find the natural frequency, a sensible damping ratio of ζ=0.7 was selected.</p>
-  </div>
+
+      </details>
   </div>
     <details class="accordion-item">
       <summary>Full code</summary>
       <div class="accordion-body">
-        <details style="margin-top:8px;">
-      <summary style="cursor:pointer; font-family:monospace; color:var(--amber); font-size:13px;">
-        Show full code
-      </summary>
-<pre><code class="language-cpp">
+      <pre><code class="language-cpp">
         //import libraries
 #include &lt;Adafruit_Sensor.h&gt;
 #include &lt;Wire.h&gt;
@@ -705,10 +707,11 @@ void loop() {
     dataFile.flush();  //Flush periodically
   }
 }
-</code></pre>
-    </details>
+      </code></pre>
       </div>
-  </section>
+</section>
+
+
 <section id="data-logging" data-cat="datalogging">
   <div class="wrap">
     <div class="section-head">
