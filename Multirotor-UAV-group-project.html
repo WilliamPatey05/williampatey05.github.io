@@ -67,15 +67,36 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 <div class="wrap">
   <div class="cat-carousel" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:12px; margin-bottom:32px; border-bottom:1px solid var(--line);">
     <button class="cat-btn active" data-cat="all">All</button>
-    <button class="cat-btn" data-cat="aero">Aero</button>
+    <button class="cat-btn" data-cat="gimbal">Gimbal</button>
+    <button class="cat-btn" data-cat="datalogging">Data logging</button>
     <button class="cat-btn" data-cat="electronics">Electronics</button>
-    <button class="cat-btn" data-cat="manufacture">Manufacture</button>
-    <button class="cat-btn" data-cat="testing">Testing</button>
   </div>
 </div>
-<section id="gimbal-control">
-  <h3>Open-loop gimbal control</h3>
-  <p>blob</p>
+<section id="gimbal-control" data-cat="gimbal">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Control</span>
+      <h2>Gimbal control</h2>
+    </div>
+    <p>We implemented a simple open-loop gimbal control system with derivative damping. The MPU6050 IMU provided orientation data, which was processed using a complementary filter to reduce drift. The filtered angles were then used to drive the servos directly, allowing for stable camera operation during flight.</p>
+</section>
+<section id="data-logging" data-cat="datalogging">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Data logging</span>
+      <h2>Data logging</h2>
+    </div>
+    <p>The flight recorder was designed to log critical flight data, including IMU readings and servo positions. This data was stored on an SD card for post-flight analysis, enabling us to evaluate the performance of the gimbal and make necessary adjustments.</p>
+  </div>
+</section>
+<section id="electronics" data-cat="electronics">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag">Electronics</span>
+      <h2>Electronics</h2>
+    </div>
+    <p>The electronics suite included the flight computer, receiver, camera module, and gimbal control system. Careful attention was paid to wiring and power distribution to ensure reliable operation of all components during flight.</p>
+  </div>
 </section>
 
 <section>
