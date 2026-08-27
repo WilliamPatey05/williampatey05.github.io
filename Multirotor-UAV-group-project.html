@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fixed-Wing Camera UAV — Portfolio</title>
+<title>Multirotor UAV — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -77,41 +77,36 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     <button class="cat-btn" data-cat="electronics">Electronics</button>
   </div>
   </div>
-    <section id="overview">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="tag">Overview</span>
-        <h2>Project overview</h2>
-      </div>
-      <p>The gimbal had to be controlled using an Arduino Uno R3 using 3 provided 9g servo motors and an MPU6050 IMU. To simplify design, an open loop control system with the IMU placed on the servo body was used with an addition damping[wp1.1] term to improve the speed of the response. The gimbal also had to feature a horizon or body locking function that could be activated using a switch on the radio transmitter. The horizon lock, points towards a certain stored vector whereas the body lock forces the gimbal to faces forwards (servos all set to 90°).  </div>
-  </section>
   <section id="gimbal-control" data-cat="gimbal">
     <div class="wrap">
       <div class="section-head">
         <span class="tag">Control</span>
         <h2>Gimbal control</h2>
       </div>
-      <p>We implemented a simple open-loop gimbal control system with derivative damping. The MPU6050 IMU provided orientation data, which was processed using a complementary filter to reduce drift. The filtered angles were then used to drive the servos directly, allowing for stable camera operation during flight.</p>
-      <div class="accordion">
+      <p>The gimbal had to be controlled using an Arduino Uno R3 using 3 provided 9g servo motors and an MPU6050 IMU. To simplify design, an open loop control system with the IMU placed on the servo body was used with an addition damping[wp1.1] term to improve the speed of the response. The gimbal also had to feature a horizon or body locking function that could be activated using a switch on the radio transmitter. The horizon lock, points towards a certain stored vector whereas the body lock forces the gimbal to faces forwards (servos all set to 90°).      <div class="accordion">
 
     <details class="accordion-item">
-      <summary>Gimbal Control</summary>
+      <summary>Filtering</summary>
       <div class="accordion-body">
-        <p>We implemented a simple open-loop gimbal control system with derivative damping. The MPU6050 IMU provided orientation data, processed through a complementary filter to reduce drift.</p>
-      </div>
-    </details>
+        <p>The provided IMU had significant sensor drift which had to be removed before the signal was usable. Using the gravity vector, the pitch and roll readings were calculated using accelerometer readings.</p>
+        <pre><code class="language-cpp">  double roll = atan(accYfilt2 / sqrt(accXfilt2 * accXfilt2 + accZfilt2 * accZfilt2)) * RAD_TO_DEG; //Calculate roll from accelerometer readings
+  double pitch = atan2(-accXfilt2, accZfilt2) * RAD_TO_DEG; //Calculate pitch from accelerometer readings;</code></pre>
+        <p>The angle rates were then integrated to obtain the orientation angles and fused with accelerometer data (complementary filtering).</p>
+        <pre><code class="language-cpp">   gyroYangle += gyroYrate * dt;
+            compAngleY = AlphaY * (compAngleY + gyroYrate * dt) + (1 - AlphaY) * pitch;
+        </code></pre>
+        <p>The provided IMU’s angular velocity measurements were initially very noisy, so multiple filtering techniques were employed to obtain a usable signal for the controller to work with.       </div>
+        <img src="Images/filtering.png" alt="filtering-techniques">
+        <p>Low-pass filtering was used to filter both the angular-rate measurement of roll, pitch and yaw as well as the acceleration recordings in X,Y and Z-directions. Heavier filtering was utilised for the damping term, as well as second order filtering on the acceleration readings to remove noise caused by motor vibrations.</p>
+
+
+
+      </details>
 
     <details class="accordion-item">
-      <summary>Data Logging</summary>
+      <summary>Control</summary>
       <div class="accordion-body">
         <p>The flight recorder logged IMU readings and servo positions to an SD card for post-flight analysis.</p>
-      </div>
-    </details>
-
-    <details class="accordion-item">
-      <summary>Electronics</summary>
-      <div class="accordion-body">
-        <p>Flight computer, receiver, camera module, and gimbal control system — with careful attention paid to wiring and power distribution.</p>
       </div>
     </details>
   </div>
