@@ -1952,6 +1952,69 @@ plt.show()
       <h2>Data logging</h2>
     </div>
     <p>The flight recorder was designed to log critical flight data, including IMU readings and servo positions. This data was stored on an SD card for post-flight analysis, enabling us to evaluate the performance of the gimbal and make necessary adjustments.</p>
+    <div class="accordion">
+
+
+  <details class="accordion-item">
+
+    <summary>Data Processing/summary>
+
+    <div class="accordion-body">
+
+      <p>
+        Another requirement for the Arduino was to record flight telemetry data of a flight test, this was achieved using an SD card data logging unit. Data was saved to an SD card in a blank file type that would appear as a comma deliminated file when read by Python code. During the assessed flight test, mocap markers were added to both the drone body and an L-shaped plate that was placed in the gimbal camera holder to allow their performance to be monitored by motion capture. To make a comparison, an animation was created in SOLIDWORKS by a team member to which I had to provide the data for. This led to 10 columns of data being saved to the SD card from each loop of the Arduino’s operation. Firstly, dt since the last loop was saved to allow later integration of data and time accurate animation. Next the raw values for both acceleration and angular rate were saved to allow for flight path recreation, as well as the angles that were written to the servos during operation. 
+      </p>
+      <pre><code class="language-cpp">
+        float tosave[10] = { dt, accX, accY, accZ, gyroX, gyroY, gyroZ, PitchWrite, RollWrite, YawWrite };
+  SaveToSD(tosave);
+  if (millis() - lastLog >= 50) 
+  {  // change logging rate
+    lastLog = millis();
+    dataFile.flush();  //Flush periodically
+  }
+      </code></pre>
+      <p>
+        The logging rate was restricted to 20hz to reduce controller lag and periodically flush the data to the SD card to prevent data loss in the event of a power cut.
+Each time the Arduino was switched on, the code creates a new filename to prevent overwriting of another file that may be saved to the SD card. 
+      </p>
+      <pre><code class="language-cpp">String createFilename(void) {
+  char filename[16];
+  int i = 0;
+
+  do {
+    sprintf(filename, "LOG_%03d.CSV", i++);
+  } while (SD.exists(filename));
+
+  return String(filename);
+}
+ </code></pre>
+    </div>
+
+  </details>
+
+
+  <details class="accordion-item">
+
+    <summary>Data Processing</summary>
+
+    <div class="accordion-body">
+
+      <p>
+        Flight path recreation 
+The CSV file generate is read by Python code, the raw body readings are then refiltered and integrated into body angles and position data of the drone. Using matrix transformations to convert the body to Earth coordinates, a rough flight path is generated in a 3D plot. The Earth co-ordinates and angles are then saved with the servo write angles in a CSV file to be sent to a team member for animation. 
+
+      </p>
+      <p>
+        Motion capture data 
+Provided by Boeing, the motion capture data and software tracks both the drone and the position of the camera. The data again was filtered to remove small spikes, however position data was already provided in Earth co-ordinates so only needed to be converted to a suitable file type for parsing into SOLIDWORKS. 
+
+      </p>
+    </div>
+
+  </details>
+
+
+</div>
   </div>
 </section>
 <section id="electronics" data-cat="electronics">
@@ -1963,7 +2026,7 @@ plt.show()
     <p>The electronics suite included the flight computer, receiver, camera module, and gimbal control system. Careful attention was paid to wiring and power distribution to ensure reliable operation of all components during flight.</p>
   </div>
 </section>
-<section>
+<section id="full-code" data-cat="fullcode">
   <div class="wrap">
     <div class="section-head">
       <span class="tag">Full Code</span>
