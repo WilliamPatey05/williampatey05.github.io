@@ -538,7 +538,8 @@ def voltage_to_stall_torque(voltage):
     return gradst * voltage_to_transit_time(voltage) + interceptst
 
 Stall_torque = voltage_to_stall_torque(5.0)</code></pre>
-            The moment on each servo was then calculated using the lever arm to the CoG of the gimbal section it had to move and the mass of the gimbal section.
+            The moment on each servo was then calculated using the lever arm to the CoG of the gimbal section it had to move and the mass of the gimbal section. The angles were assumed to be small such that the lever arm could be approximated as a constant.
+                <img src="TorqueDia.png" alt="TorqueDia" width="500" height="600">
             </div>
             
           </div>
