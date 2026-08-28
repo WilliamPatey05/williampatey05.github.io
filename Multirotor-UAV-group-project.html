@@ -539,7 +539,15 @@ def voltage_to_stall_torque(voltage):
 
 Stall_torque = voltage_to_stall_torque(5.0)</code></pre>
             The moment on each servo was then calculated using the lever arm to the CoG of the gimbal section it had to move and the mass of the gimbal section. The angles were assumed to be small such that the lever arm could be approximated as a constant.
-                <img src="Images/TorqueDia.png" alt="TorqueDia" width="500" height="600">
+                <img src="Images/TorqueDia.png" alt="TorqueDia" width="266" height="400">
+                <p>The moment was calculated as the product of the force and the lever arm. Then the fraction of the stall torque was found to find the transit time at load. This was then converted to the natural frequency.</p>
+                <pre><code class="language-cpp">Load_fraction = Torque / Stall_torque
+
+Transit_time_loaded = Transit_time / (1 - Load_fraction)
+
+omega_s = (np.pi /3) / Transit_time_loaded</code></pre>
+              <p>The optimal K_d value was then found by using the reciprocal of the natural frequency.</p>
+              <pre><code class="language-cpp">Kd_opt = 1 / omega_s</code></pre>
             </div>
             
           </div>
