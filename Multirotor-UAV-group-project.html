@@ -554,7 +554,6 @@ omega_s = (np.pi /3) / Transit_time_loaded</code></pre>
 C = control.tf([kd, 1], [1])        # C(s) = 1 + Kd*s
 T = C * G                      
 t_out, y_out = control.forced_response(T, T=t, U=np.ones_like(t))</code></pre>
-              ```html
 <!-- =========================================================
      SERVO Kd INTERACTIVE SIMULATOR
      ========================================================= -->
@@ -1757,7 +1756,184 @@ t_out, y_out = control.forced_response(T, T=t, U=np.ones_like(t))</code></pre>
 
 </script>
 ```
+          <details style="margin-top:8px;">
+      <summary style="cursor:pointer; font-family:monospace; color:var(--amber); font-size:13px;">
+        Show full tuning code
+      </summary>
+      <pre><code class="language-cpp">
+        import numpy as np
+import matplotlib.pyplot as plt
+import control
 
+zeta    = 0.7
+
+#yaw
+#mass = 0.0257 + 0.01071
+#lever_arm = 0.00723
+#lever_arm= 0.013 # with arm
+
+#pitch
+mass = 0.0027 + 0.01071
+lever_arm = 0.001
+
+#roll
+#mass = 0.0127 + 0.01071
+#lever_arm = 0.00582
+#lever_arm = 0.01446 # with arm
+
+Transit_time1 = 0.12 #sec/60deg
+voltage1 = 4.8
+stall_torque1 = 1.8 #kg/cm
+
+Transit_time2 = 0.1 #sec/60deg
+voltage2 = 6
+stall_torque2 = 2.4 #kg/cm
+
+def rise_time(t, y):
+    """
+    Time to go from 10% to 90% of final value.
+    """
+    y_final = y[-1]
+    y_10    = 0.10 * y_final
+    y_90    = 0.90 * y_final
+    
+    # find first crossing of 10% and 90%
+    idx_10 = np.where(y >= y_10)[0][0]
+    idx_90 = np.where(y >= y_90)[0][0]
+    
+    return t[idx_90] - t[idx_10]
+
+def settling_time(t, y, threshold=0.02):
+    """
+    Find settling time to within threshold (default 2%) of final value.
+    """
+    y_final = y[-1]
+    
+    # normalise around final value
+    error = np.abs(y - y_final) / np.abs(y_final)
+    
+    # find last time error exceeds threshold
+    outside = np.where(error > threshold)[0]
+    
+    if len(outside) == 0:
+        return 0.0   # already settled
+    
+    last_idx = outside[-1]
+    return t[last_idx]
+
+def overshoot(t, y):
+    """
+    Percentage overshoot relative to final value.
+    """
+    y_final = y[-1]
+    
+    if y_final < 0:
+        # negative system — undershoot is the peak negative excursion
+        y_peak = np.min(y)
+    else:
+        y_peak = np.max(y)
+    
+    os = 100 * (y_peak - y_final) / abs(y_final)
+    return os
+gradv = (voltage2 - voltage1) / (Transit_time2 - Transit_time1)
+interceptv = voltage1 - gradv * Transit_time1
+
+def voltage_to_transit_time(voltage):
+    return (voltage - interceptv) / gradv
+
+Transit_time = voltage_to_transit_time(5.0)
+
+gradst = (stall_torque2 - stall_torque1) / (Transit_time2 - Transit_time1)
+interceptst = stall_torque1 - gradst * Transit_time1
+
+def voltage_to_stall_torque(voltage):
+    return gradst * voltage_to_transit_time(voltage) + interceptst
+
+Stall_torque = voltage_to_stall_torque(5.0)
+
+Torque = mass * lever_arm*9.81 * 100
+
+Load_fraction = Torque / Stall_torque
+
+Transit_time_loaded = Transit_time / (1 - Load_fraction)
+
+omega_s = (np.pi /3) / Transit_time_loaded
+
+Kd_opt = 1 / omega_s
+G = control.tf([omega_s**2], [1, 2*zeta*omega_s, omega_s**2])
+t = np.linspace(0, 6, 1000)
+print(Kd_opt)
+
+tau = 0.05  # filter time constant (seconds)
+G_filter = control.tf([1], [tau, 1])  # low-pass filter with tau=0.05s
+
+plt.figure(figsize=(10, 5))
+for kd, label in [
+    (0.0,         "Kd=0      (no damping)"),
+    (Kd_opt/2,    "Kd=0.5x optimal"),
+    (Kd_opt,      "Kd=1/omega_s (optimal)"),
+    (Kd_opt*2,    "Kd=2x optimal"),
+]:
+    C = control.tf([kd, 1], [1])        # C(s) = 1 + Kd*s
+    T = C * G                      
+    t_out, y_out = control.forced_response(T, T=t, U=np.ones_like(t))
+    print("t_r", kd, rise_time(t_out,y_out))
+    print("t_s", kd, settling_time(t_out,y_out))
+    print("OS", kd, overshoot(t_out,y_out))
+    plt.plot(t_out, y_out, label=label)
+
+
+
+plt.axhline(1.0, color='black', linestyle='--', linewidth=0.8, label='Input')
+plt.title("Servo step response — varying Kd")
+plt.xlabel("Time (s)")
+plt.ylabel("Camera angle")
+plt.legend(fontsize=12)
+plt.grid(True)
+
+plt.figure(figsize=(10, 5))
+C_opt = control.tf([Kd_opt, 1], [1])
+T_opt = C_opt * G
+for f, label in [(1, "1 Hz"), (2, "2 Hz"), (5, "5 Hz"), (10, "10 Hz"), (500, "500 Hz (motors)")]:
+    u = np.sin(2 * np.pi * f * t)
+    _, y = control.forced_response(T_opt, T=t, U=u)
+    plt.plot(t, y, label=label)
+plt.title(f"Sinusoidal tracking (Kd=1/omega_s={Kd_opt:.3f})")
+plt.xlabel("Time (s)")
+plt.ylabel("Output")
+plt.legend(fontsize=8)
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+fig, axes = plt.subplots(2, 1, figsize=(8, 8))
+
+ax3 = axes[0]
+mag0, phase0, omega = control.bode(G,         plot=False)
+magK, phaseK, _     = control.bode(C_opt * G, plot=False)
+ax3.semilogx(omega, 20*np.log10(mag0),  label='No Kd')
+ax3.semilogx(omega, 20*np.log10(magK),  label=f'Kd=1/omega_s')
+ax3.axvline(omega_s, color='gray', linestyle='--', linewidth=0.8, label='omega_s')
+ax3.set_title("Bode magnitude — effect of Kd")
+ax3.set_xlabel("Frequency (rad/s)")
+ax3.set_ylabel("Magnitude (dB)")
+ax3.legend(fontsize=8)
+ax3.grid(True, which='both')
+
+ax4 = axes[1]
+ax4.semilogx(omega, np.degrees(phase0), label='No Kd')      
+ax4.semilogx(omega, np.degrees(phaseK), label=f'Kd=1/omega_s')
+ax4.axvline(omega_s, color='gray', linestyle='--', linewidth=0.8, label='omega_s')
+ax4.set_title("Bode magnitude vs phase")
+ax4.set_xlabel("Frequency (rad/s)")
+ax4.set_ylabel("Phase (degrees)")
+ax4.legend(fontsize=8)
+ax4.grid(True, which='both')
+
+plt.tight_layout()
+plt.show()
+      </code></pre>
+    </details>
           </div>
 
         </details>
