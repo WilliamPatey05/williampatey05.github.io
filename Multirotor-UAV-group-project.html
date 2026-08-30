@@ -1957,7 +1957,7 @@ plt.show()
 
   <details class="accordion-item">
 
-    <summary>Data Processing</summary>
+    <summary>Data Collection</summary>
 
     <div class="accordion-body">
 
@@ -2020,11 +2020,14 @@ Provided by Boeing, the motion capture data and software tracks both the drone a
 <section id="electronics" data-cat="electronics">
   <div class="wrap">
     <div class="section-head">
-      <span class="tag">Electronics</span>
+      <span class="tag">Electronics and integration</span>
       <h2>Electronics</h2>
     </div>
-    <p>The electronics suite included the flight computer, receiver, camera module, and gimbal control system. Careful attention was paid to wiring and power distribution to ensure reliable operation of all components during flight.</p>
-  </div>
+    <p> 
+      The Arduino was integrated to the top plate of the drones body, recieving a 5V supply from the drones power distribution board. The IMU was placed centrally on the drone body, using foam as a buffer to reduce vibrations. The SD card was mounted at the edge too allow for easy access. The three SG90 servos were mounted inside a 3D printed frame (designed by a team member) that was attached to the top plate of the drone. The servos were mounted in a way that allowed for the camera to be placed in the gimbal holder and for the servos to be easily removed for maintenance. The Arduino was connected to the servos using jumper wires, and the IMU was connected using I2C. The SD card was connected using SPI. The Arduino was programmed to read the IMU data, calculate the required servo angles, and write the angles to the servos. The Arduino also logged data to the SD card for post-flight analysis. A singular wire was also connected to the drones flight controller to allow the gimbal mode to be switched remotely. 
+    <img src="Images/Integration.png" alt="TorqueDia" width="300" height="300">
+    <p>The wiring diagram for the Arduino loop is shown below:</p>
+    </div>
 </section>
 <section id="full-code" data-cat="fullcode">
   <div class="wrap">
