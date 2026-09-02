@@ -65,10 +65,9 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
       <h2>Electronics &amp; flight stack</h2>
     </div>
     <table class="spec-table">
-      <tr><td>Flight computer</td><td>Matek F405-Wing, ArduPilot</td></tr>
-      <tr><td>Receiver</td><td>FlySky 10-channel, iBUS</td></tr>
-      <tr><td>Camera</td><td>ESP32 camera module, triggered by flight computer</td></tr>
-      <tr><td>Gimbal</td><td>Arduino Nano + MPU6050, complementary filter, direct angle/rate servo drive</td></tr>
+      <tr><td>Flight computer</td><td>, Betflight</td></tr>
+      <tr><td>Receiver</td><td>FlySky 10-channel</td></tr>
+      <tr><td>Gimbal</td><td>Arduino Uno + MPU6050, complementary filter, direct angle/rate servo drive</td></tr>
     </table>
   </div>
 </section>
@@ -81,14 +80,18 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     <button class="cat-btn" data-cat="electronics">Electronics</button>
     <button class="cat-btn" data-cat="Full code">Full code</button>
   </div>
-  </div>
+</div>
   <section id="gimbal-control" data-cat="gimbal">
 
     <div class="wrap">
 
       <div class="section-head">
-        <span class="tag">Control</span>
-        <h2>Gimbal control</h2>
+        <span class="tag">
+          Control
+        </span>
+        <h2>
+          Gimbal control
+        </h2>
       </div>
 
       <p>
@@ -2025,9 +2028,74 @@ Provided by Boeing, the motion capture data and software tracks both the drone a
     </div>
     <p> 
       The Arduino was integrated to the top plate of the drones body, recieving a 5V supply from the drones power distribution board. The IMU was placed centrally on the drone body, using foam as a buffer to reduce vibrations. The SD card was mounted at the edge too allow for easy access. The three SG90 servos were mounted inside a 3D printed frame (designed by a team member) that was attached to the top plate of the drone. The servos were mounted in a way that allowed for the camera to be placed in the gimbal holder and for the servos to be easily removed for maintenance. The Arduino was connected to the servos using jumper wires, and the IMU was connected using I2C. The SD card was connected using SPI. The Arduino was programmed to read the IMU data, calculate the required servo angles, and write the angles to the servos. The Arduino also logged data to the SD card for post-flight analysis. A singular wire was also connected to the drones flight controller to allow the gimbal mode to be switched remotely. 
-    <img src="Images/Integration.png" alt="TorqueDia" width="300" height="300">
+    <img src="Images/Integration.png" alt="Integration Diagram" width="300" height="300">
     <p>The wiring diagram for the Arduino loop is shown below:</p>
+    <img src="Images/WiringDiagram.png" alt="Wiring Diagram" width="300" height="300">
     </div>
+</section>
+    <section id="testing" data-cat="testing and evaluation">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="tag">Testing</span>
+          <h2>Testing</h2>
+        </div>
+        <p> 
+          <div class="accordion">
+
+
+      <details class="accordion-item">
+
+        <summary>Gimbal Testing</summary>
+
+        <div class="accordion-body">
+
+          <p>
+            The gimbal was tested in three ways: It was first tested by hand, moving the gimbal to extremes and quickly to test the smoothness of the response, and mode switching. The next test was place the drone on a tilt table, inputting step-inputs of table angles of 45 &deg;. The final test was to fly the aircraft and ensure the gimbal was not affected by the motor vibrations. For both the table and flight test, the onboard IMU data was compared to the motion capture data.
+          </p>
+          <h2>
+            Hand test
+          </h2>
+          <p>
+            The gimbal response obtained was very smooth, with minimal lag and no axis drift. The only aspect which did not work as the assessor wanted was the mode switching. After switching from horizon to body lock, the assessor wanted the gimbal to point towards the first stored vector, instead ours stored a new vector to point towards. Whilst this method made more sense to me, I should have clarified what was wanted by the customer.
+          </p>
+          <h2>
+            Tilt table
+          </h2>
+          <p>
+            The tilt table exposed another area of improvement to the gimbals design. When the assessor went to install the motion capture L-arm, it was not intuative enough as to how it should be fastened (down to the structures designer not myself) so came the arm came loose during testing so pitch response drifted (graph shown) throughout operation. After a step input was applied, the output given to the servos shows very little oscilation after the step input was applied. However in practice, a small amount of oscilation was observed by the motion capture tests. This was likely caused by a small amount of play in the gearing mechanisms of the cheap servos provided. 
+            To fix the first issue, an instruction to the assessor could have been provided prior as to how to correctly fasten the L-beam, or a wingnut used instead of an m3-screw to make the fastening mechanism more obvious. The second issue could have been fixed by using metal gear servos (MG90s) which have much less play in their gearing mechanicisms. 
+          </p>
+          <h2>
+            Flight test
+          </h2>
+          <p>
+            Similiar oscilations of the L-arm in the holder were experienced during the flight test. Notably these oscilations were only caused by play in the servos not jitter in the servos response, meaning the IMU readings were correctly filtered to remove mechanical noise from the motors operation.
+          </p>
+        </div>
+
+      </details>
+
+
+      <details class="accordion-item">
+
+        <summary>Flight Testing</summary>
+
+        <div class="accordion-body">
+
+          <p>
+            The performance of the multirotor was as expected during flight, as motors and flight computer were pre-chosen. The assessor felt comfortable enough with our design that he could leave the drone hovering hands free.
+          </p>
+          <p>
+            Using the data obtained from IMU and the motion capture, a flight path was reconstructed for both to compare the two methods of monitoring. Using the motion capture data, a visually accurate flight path could be reconstructed, however this was not true of the IMU data. Whilst the orientation data is very accurate, the positioning data only shows some similiarties, with some movements blown out of proportion. This is likely caused by small errors and biases in the signal summing during integration to form larger errors and drifting. Whilst mechanical damping (foam under IMU) was used to reduce noise in the accelerometer signal, heavy filtering still had to be employed which may have lost some of the signal. Similiar to how accelerometer readings can be fused with gyro readings to eliminate drift, a GPS can be used to mitigate drift, so if accurate positioning data was required by a customer, a GPS would need to be used.
+          </p>
+        </div>
+
+      </details>
+
+
+    </div>
+    </p>
+  </div>
 </section>
 <section id="full-code" data-cat="fullcode">
   <div class="wrap">
@@ -2635,23 +2703,6 @@ Provided by Boeing, the motion capture data and software tracks both the drone a
       <p>A sharp edge at the flap hinge line was causing Fluent to crash. Fixed by adding a small fillet to the hinge geometry in Onshape before meshing.</p>
     </div>
 
-    <div class="log-entry">
-      <div class="log-tag">Electronics</div>
-      <h4>Gimbal I2C failures</h4>
-      <p>Spent a debugging session chasing MPU6050 I2C failures — traced to confusing the WHO_AM_I register value (0x70) with the actual bus address (0x68), on top of clone-chip quirks, SD card init issues, and a blocking pulseIn call. Ended the session with the IMU initialized and angle values printing correctly.</p>
-    </div>
-
-    <div class="log-entry">
-      <div class="log-tag">Propulsion</div>
-      <h4>ESC and motor failure from mismatched wire gauge</h4>
-      <p>Lost an ESC to a bad solder joint, and separately burned out a motor (black windings, no rotation) on the other side. Root cause: one phase connection used a thin jumper wire while the other two used thicker wire, causing a resistance imbalance across phases. Replacing both ESCs with pre-terminated, no-solder connectors to remove that failure mode.</p>
-    </div>
-
-    <div class="log-entry">
-      <div class="log-tag">Mass budget</div>
-      <h4>Trimming toward the 800 g target</h4>
-      <p>Brought AUW down from ~828 g to ~816 g via trims to the flap, aileron, and fuselage front sections. The wing sections (outer/middle/inner/tip, ~163 g total) remain the largest untouched mass pool for further optimization.</p>
-    </div>
   </div>
 </section>
 

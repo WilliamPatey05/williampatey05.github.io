@@ -7,6 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 </head>
 <body>
 
@@ -47,36 +56,266 @@
   </div>
 </section>
 
+<script>
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('light-mode');
+});
+</script>
 <section>
   <div class="wrap">
-    <div class="section-head">
-      <span class="tag">CFD</span>
-      <h2>Aerodynamic analysis</h2>
-    </div>
-    <table class="spec-table">
-      <tr><td>Solver</td><td>Ansys Fluent, Transition SST, 3D half-wing model</td></tr>
-      <tr><td>CL max</td><td>≈ 0.91 at 16° AoA</td></tr>
-      <tr><td>Peak L/D</td><td>≈ 16 at 4.2° AoA</td></tr>
-      <tr><td>Cruise speed</td><td>≈ 10.2 m/s</td></tr>
-      <tr><td>Static margin</td><td>~11% MAC</td></tr>
-    </table>
+    <h1>
+      Description
+    </h1>
+    <p>
+      Design and manufacture of a ~850g fixed-wing UAV designed to carry a payload of a camera stabilised with a PID controlled 2-axis gimbal. The aircraft was designed over the Summer of 2026 with the idea that it could be entirely manufactured from home using the tools I had available, including a 3D printer. As I had never previously flown an RC aircraft before, the aircraft was designed in such away that allows easy flying for a new user, featuring low aspect ratio wings for delay of stall as well as a pre-built flight computer running Ardupilot to allow for FBW flying. Even with low aspect wings, the wings were designed such as to maximise efficiency. 
+    </p>
   </div>
 </section>
+<div class="wrap">
+  <div class="cat-carousel" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:12px; margin-bottom:32px; border-bottom:1px solid var(--line);">
+    <button class="cat-btn active" data-cat="all">All</button>
+    <button class="cat-btn" data-cat="Icalc">Initial Calculations</button>
+    <button class="cat-btn" data-cat="Aero">Aerodynamics and stability</button>
+    <button class="cat-btn" data-cat="CFD">CFD</button>
+    <button class="cat-btn" data-cat="electronics">Electronics and propulsion</button>
+    <button class="cat-btn" data_cat="struct">Aircraft design and structure</button>
+    <button class="cat-btn" data-cat="TestAndEval">Testing and evaluation</button>
+  </div>
+</div>
 
-<section>
-  <div class="wrap">
-    <div class="section-head">
-      <span class="tag">Systems</span>
-      <h2>Electronics &amp; flight stack</h2>
+<div>
+  <section id="Initial calculations" data-cat="Icalc">
+    <div class = "wrap">
+      <span class="tag">
+        Aircraft design
+      </span>
+      <h2>
+        Initial calculations
+      </h2>
     </div>
-    <table class="spec-table">
-      <tr><td>Flight computer</td><td>Matek F405-Wing running ArduPilot</td></tr>
-      <tr><td>Receiver</td><td>FlySky 10-channel, iBUS</td></tr>
-      <tr><td>Camera</td><td>ESP32 camera module, triggered by flight computer/Arduino</td></tr>
-      <tr><td>2-axis Gimbal</td><td>PID controlled, Arduino Nano + MPU6050, complementary filter  </td></tr>
-    </table>
-  </div>
-</section>
+    <p>
+      Initial sizing of the aircraft was based off several factors. The first main factor was for ease of manufacturing, carbon fibre rods that I would likely use as a main wing spar are often sourced in 1m sections, making the wingspan also 1m. The payload, a 2-axis camera gimbal was designed first (mass 88g) so a rough payload fraction of 10% could be used, leading to an initial mass target of 800g. 
+    </p>
+    <p>
+      The basic aircaft configuration was chosen to have a conventional tail arrangment for ease of design. For the payload, a camera mounted to the fuselage was selected, which meant a single prop configuration was not possible. Whilst a single pusher prop was possible, I wanted the aircraft to have redundancy incase of a single motor failure, so a configuration with a propeller mounted on each wing was selected.
+    </p>
+  </section>
+</div>
+
+<div>
+  <section id="Aerodynamics and stability">
+    <div class = "wrap">
+      <span class = "tag">
+        Aerodynamics and stability
+      </span>
+      <h2>
+        Aerodynamics and stability
+      </h2>
+    </div>
+    <p>
+      Once basic aerodynamic calculations had been completed, wing development could begin. The foil was selected using XFOIL direct analysis; the wing, tailplane and vertical stabiliser optimised using XFLR5; control surfaces effectiveness was determined using AVL wrapper for Python. 
+    </p>
+    <div class="accordion">
+
+
+  <details class="accordion-item">
+
+    <summary>Foil selection</summary>
+
+    <div class="accordion-body">
+
+      <p>
+        A number of low-Reynolds airfoils were analysed to determine the most optimal shape for both the main wing and tail sections. Each was analysed at angles of attack varying from -5 to 20° for Reynolds numbers 30,000 to 500,000, with the performance between 120,000 and 180,000 of particular interest. 
+Compare foils and show polars.
+After analyses, the foil SD7037 exhibited the most optimal behaviour for the main wing. For the tail section, the symmetrical foil NACA0009 was selected. At cruise, SD7037, exhibited the highest lift to drag ratio at cruise, as well as a stall speed less than 7.5m/s. NACA0009 exhibited lower drag penalties than the other symmetrical foils tested.
+A number of low-Reynolds airfoils were analysed to determine the most optimal shape for both the main wing and tail sections. Each was analysed at angles of attack varying from -5 to 20° for Reynolds numbers 30,000 to 500,000, with the performance between 120,000 and 180,000 of particular interest. 
+Compare foils and show polars.
+After analyses, the foil SD7037 exhibited the most optimal behaviour for the main wing. For the tail section, the symmetrical foil NACA0009 was selected. At cruise, SD7037, exhibited the highest lift to drag ratio at cruise, as well as a stall speed less than 7.5m/s. NACA0009 exhibited lower drag penalties than the other symmetrical foils tested.
+      </p>
+
+    </div>
+
+  </details>
+
+
+  <details class="accordion-item">
+
+    <summary>Wing developement</summary>
+
+    <div class="accordion-body">
+
+      <p>
+        Various wing planforms were tested and compared with a straight wing. Sweep, taper and twist were varied to obtain the most efficient platform. 
+      </p>
+
+    </div>
+
+  </details>
+
+  <details class="accordion-item">
+
+    <summary>Tail section</summary>
+
+    <div class="accordion-body">
+
+      <p>
+        l_vt and l_vh, the distance from the main wing train trailing edge were selected as 0.5 such as to not make the tail boom diameter too large. To ensure the tail plane has enough stability authority, a tailplane volume coefficient of V_H of 0.5 was selected, similarly for the vertical stabiliser, a V_V value of 0.04 was selected. Aspect ratios for both were selected lower than that of the main wing, 3 and 2 respectively to maintain control authority after the main wing has stalled. Resulting in the span of the horzontal stabiliser to be 0.39m and height of the fin to be 0.18m.
+      </p>
+
+    </div>
+
+  </details>
+  <details class="accordion-item">
+
+    <summary>Control surfaces and authority</summary>
+
+    <div class="accordion-body">
+
+      <p>
+        Your content here.
+      </p>
+
+    </div>
+
+  </details>
+    <details class="accordion-item">
+
+    <summary>Longitudinal stability</summary>
+
+    <div class="accordion-body">
+
+      <p>
+        Your content here.
+      </p>
+
+    </div>
+
+  </details>
+
+</div>
+  </section>
+</div>
+
+<div>
+  <section id="CFD" data-cat="CFD">
+    <div class="wrap">
+      <span class="tag">
+        Aerodynamic evaluation
+      </span>
+      <h2>
+        CFD
+      </h2>
+    </div>
+    <p>
+      To validate some of the aerodynamic results obtained in XFLR5, CFD (Ansys fluent) was conducted on the main wing with and without flaps deployed to determine lift, efficiency and stall conditions. CFD would have been conducted on the whole aircraft but was not feasible due to my room becoming too hot during the July UK heatwave.
+    </p>
+    <div class="accordion">
+
+      <details class="accordion-item">
+
+        <summary>Meshing</summary>
+
+        <div class="accordion-body">
+
+          <p>
+            
+          </p>
+
+        </div>
+
+      </details>
+
+
+      <details class="accordion-item">
+
+        <summary>Models</summary>
+
+        <div class="accordion-body">
+
+          <p>
+            Your content here.
+          </p>
+
+        </div>
+
+      </details>
+            <details class="accordion-item">
+
+        <summary>Full wing CFD</summary>
+
+        <div class="accordion-body">
+
+          <p>
+            Your content here.
+          </p>
+
+        </div>
+
+      </details>
+
+
+    </div>
+  </section>
+</div>
+
+<div>
+  <section id="Electronics and propulsion" data-cat="electronics">
+    <div class ="wrap">
+      <span class = "tag>">
+        Electronics
+      </span>
+      <p>
+        Electronics were selected as to minimise weight as well as minimise cost. First thrust then motor requirements were found, before a power and flight computer were selected.
+      </p>
+      <div class="accordion">
+
+        <details class="accordion-item">
+
+          <summary>Propulsion</summary>
+
+          <div class="accordion-body">
+
+            <p>
+              Propulsion was sized based from the worse-case thrust scenario which occurs during take off. Using the lift to drag ratio obtained during CFD (13.81) with a penaulty (L/D = 10) to account for fusilage drag.
+            </p>
+
+          </div>
+
+        </details>
+
+
+        <details class="accordion-item">
+
+          <summary>Power requirements</summary>
+
+          <div class="accordion-body">
+
+            <p>
+              Your content here.
+            </p>
+
+          </div>
+
+        </details>
+        <details class="accordion-item">
+
+          <summary>flight control system</summary>
+
+          <div class="accordion-body">
+
+            <p>
+              Your content here.
+            </p>
+
+          </div>
+
+        </details>
+
+
+      </div>
+    </div>
+  </section>
+</div>
 
 <section>
   <div class="wrap">
@@ -119,4 +358,18 @@
 </footer>
 
 </body>
+<script>
+Prism.highlightAll();
+ 
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    document.querySelectorAll('section[data-cat]').forEach(section => {
+      section.style.display = (cat === 'all' || section.dataset.cat === cat) ? '' : 'none';
+    });
+  });
+});
+</script>
 </html>
