@@ -13,7 +13,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 </head>
@@ -48,7 +47,7 @@
       <tr><td>All-up weight</td><td>~816 g (target 800 g)</td></tr>
       <tr><td>Wingspan</td><td>1 m</td></tr>
       <tr><td>Airfoil</td><td>SD7037, 0.25 m mean chord, tapered planform</td></tr>
-      <tr><td>Spars</td><td>10/8 mm + 4/3mm carbon fibre tube </td></tr>
+      <tr><td>Spars</td><td>10/8 mm + 4/3mm carbon fibre tube</td></tr>
       <tr><td>Tail configuration</td><td>Conventional</td></tr>
       <tr><td>Fabrication</td><td>PLA / PLA Aero, printed on a Bambu A1</td></tr>
       <tr><td>Landing gear</td><td>3D-printed U-shaped PLA skid with Lego wheels</td></tr>
@@ -56,21 +55,15 @@
   </div>
 </section>
 
-<script>
-document.getElementById('theme-toggle').addEventListener('click', () => {
-  document.body.classList.toggle('light-mode');
-});
-</script>
 <section>
   <div class="wrap">
-    <h1>
-      Description
-    </h1>
+    <h1>Description</h1>
     <p>
-      Design and manufacture of a ~850g fixed-wing UAV designed to carry a payload of a camera stabilised with a PID controlled 2-axis gimbal. The aircraft was designed over the Summer of 2026 with the idea that it could be entirely manufactured from home using the tools I had available, including a 3D printer. As I had never previously flown an RC aircraft before, the aircraft was designed in such away that allows easy flying for a new user, featuring low aspect ratio wings for delay of stall as well as a pre-built flight computer running Ardupilot to allow for FBW flying. Even with low aspect wings, the wings were designed such as to maximise efficiency. 
+      Design and manufacture of a ~850g fixed-wing UAV designed to carry a payload of a camera stabilised with a PID controlled 2-axis gimbal. The aircraft was designed over the Summer of 2026 with the idea that it could be entirely manufactured from home using the tools I had available, including a 3D printer. As I had never previously flown an RC aircraft before, the aircraft was designed in such a way that allows easy flying for a new user, featuring low aspect ratio wings for delay of stall as well as a pre-built flight computer running ArduPilot to allow for FBW flying. Even with low aspect wings, the wings were designed such as to maximise efficiency.
     </p>
   </div>
 </section>
+
 <div class="wrap">
   <div class="cat-carousel" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:12px; margin-bottom:32px; border-bottom:1px solid var(--line);">
     <button class="cat-btn active" data-cat="all">All</button>
@@ -78,244 +71,585 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     <button class="cat-btn" data-cat="Aero">Aerodynamics and stability</button>
     <button class="cat-btn" data-cat="CFD">CFD</button>
     <button class="cat-btn" data-cat="electronics">Electronics and propulsion</button>
-    <button class="cat-btn" data_cat="struct">Aircraft design and structure</button>
+    <button class="cat-btn" data-cat="struct">Aircraft design and structure</button>
     <button class="cat-btn" data-cat="TestAndEval">Testing and evaluation</button>
   </div>
 </div>
 
-<div>
-  <section id="Initial calculations" data-cat="Icalc">
-    <div class = "wrap">
-      <span class="tag">
-        Aircraft design
-      </span>
-      <h2>
-        Initial calculations
-      </h2>
-    </div>
+<section id="initial-calculations" data-cat="Icalc">
+  <div class="wrap">
+    <span class="tag">Aircraft design</span>
+    <h2>Initial calculations</h2>
+
     <p>
-      Initial sizing of the aircraft was based off several factors. The first main factor was for ease of manufacturing, carbon fibre rods that I would likely use as a main wing spar are often sourced in 1m sections, making the wingspan also 1m. The payload, a 2-axis camera gimbal was designed first (mass 88g) so a rough payload fraction of 10% could be used, leading to an initial mass target of 800g. 
+      Initial sizing of the aircraft was based off several factors. The first main factor was for ease of manufacturing, carbon fibre rods that I would likely use as a main wing spar are often sourced in 1m sections, making the wingspan also 1m. The payload, a 2-axis camera gimbal was designed first (mass 88g) so a rough payload fraction of 10% could be used, leading to an initial mass target of 800g.
     </p>
     <p>
-      The basic aircaft configuration was chosen to have a conventional tail arrangment for ease of design. For the payload, a camera mounted to the fuselage was selected, which meant a single prop configuration was not possible. Whilst a single pusher prop was possible, I wanted the aircraft to have redundancy incase of a single motor failure, so a configuration with a propeller mounted on each wing was selected.
+      The basic aircraft configuration was chosen to have a conventional tail arrangement for ease of design. For the payload, a camera mounted to the fuselage was selected, which meant a single prop configuration was not possible. Whilst a single pusher prop was possible, I wanted the aircraft to have redundancy in case of a single motor failure, so a configuration with a propeller mounted on each wing was selected.
     </p>
-  </section>
-</div>
-
-<div>
-  <section id="Aerodynamics and stability">
-    <div class = "wrap">
-      <span class = "tag">
-        Aerodynamics and stability
-      </span>
-      <h2>
-        Aerodynamics and stability
-      </h2>
-    </div>
     <p>
-      Once basic aerodynamic calculations had been completed, wing development could begin. The foil was selected using XFOIL direct analysis; the wing, tailplane and vertical stabiliser optimised using XFLR5; control surfaces effectiveness was determined using AVL wrapper for Python. 
+      To ensure the aircraft was easy to control and land, a moderate stall speed of 7.5m/s was chosen. A wing loading of ~31.4 was chosen to balance stability and handling, obtaining a wing area of 0.5m^2. These chosen parametres then decided the other required parameters of the wing. (density and dynamic viscocity were taken at sea level with values of 1.225kg/m^2 and 0.0000183 Pa s.)
     </p>
-    <div class="accordion">
+    <details class="calc-card">
+            <summary>
+              <span class="calc-label">Min stall speed</span>
+              <span class="calc-value">7.5<span class="calc-unit">m/s</span></span>
+            </summary>
+            <div class="calc-explain">
+              <p>Design input — the lowest speed the aircraft can fly without stalling. Chosen to allow easier landing</p>
+            </div>
+          </details>
+          <details class="calc-card">
+            <summary>
+              <span class="calc-label">Wing loading</span>
+              <span class="calc-value">31.4<span class="calc-unit">N/m²</span></span>
+            </summary>
+            <div class="calc-explain">
+              <pre><code class="language-plain">W/S = Weight / Wing area</code></pre>
+              <p>A key sizing parameter linking mass, wing area, and stall speed.</p>
+            </div>
+          </details>
+          <details class="calc-card">
+            <summary>
+              <span class="calc-label">C_L max</span>
+              <span class="calc-value">0.911</span>
+            </summary>
+            <div class="calc-explain">
+              <pre><code class="language-plain">W = m·g
+        C_L_max = W / (0.5·rho·v_stall^2·S)</code></pre>
+              <p>Weight nromalised by the dynamic pressure at stall speed and wing area — the maximum lift coefficient the wing must be capable of producing.</p>
+            </div>
+          </details>
+        
+          <details class="calc-card">
+            <summary>
+              <span class="calc-label">Cruise speed</span>
+              <span class="calc-value">10.5<span class="calc-unit">m/s</span></span>
+            </summary>
+            <div class="calc-explain">
+              <pre><code class="language-plain">v_cruise = 1.4 * v_stall</code></pre>
+              <p>Set as a margin of stall speed to ensure the aircaft is not close to stall during cruise.</p>
+            </div>
+          </details>
+        
+          <details class="calc-card">
+            <summary>
+              <span class="calc-label">C_L cruise</span>
+              <span class="calc-value">0.405</span>
+            </summary>
+            <div class="calc-explain">
+              <pre><code class="language-plain">C_L_cruise = W / (0.5·rho·v_cruise^2·S)</code></pre>
+              <p>Same lift-coefficient relationship as C_L max, evaluated at cruise speed instead of stall speed.</p>
+            </div>
+          </details>
+        
+          <details class="calc-card">
+            <summary>
+              <span class="calc-label">Aspect ratio</span>
+              <span class="calc-value">4.0</span>
+            </summary>
+            <div class="calc-explain">
+              <pre><code class="language-plain">b = S / c_mean
+        AR = b / c_mean</code></pre>
+              <p>Span found from wing area over mean chord, then aspect ratio from span over mean chord.</p>
+            </div>
+          </details>
+        
+          <details class="calc-card">
+            <summary>
+              <span class="calc-label">Reynolds no. (stall)</span>
+              <span class="calc-value">≈102,000</span>
+            </summary>
+            <div class="calc-explain">
+              <pre><code class="language-plain">Re = rho * v_stall * c_mean / nu</code></pre>
+              <p>Reynolds number at the mean chord, evaluated at stall speed — used to select an appropriate low-Reynolds airfoil.</p>
+            </div>
+          </details>
+                    <details class="calc-card">
+            <summary>
+              <span class="calc-label">Reynolds no. (cruise)</span>
+              <span class="calc-value">≈188,000</span>
+            </summary>
+            <div class="calc-explain">
+              <pre><code class="language-plain">Re = rho * v_stall * c_mean / nu</code></pre>
+              <p>Reynolds number at the mean chord, evaluated at cruise speed — used to select an appropriate low-Reynolds airfoil.</p>
+            </div>
+          </details>
+  </div>
+</section>
 
+<section id="aerodynamics-and-stability" data-cat="Aero">
+  <div class="wrap">
+    <span class="tag">Aerodynamics and stability</span>
+    <h2>Aerodynamics and stability</h2>
 
-  <details class="accordion-item">
-
-    <summary>Foil selection</summary>
-
-    <div class="accordion-body">
-
-      <p>
-        A number of low-Reynolds airfoils were analysed to determine the most optimal shape for both the main wing and tail sections. Each was analysed at angles of attack varying from -5 to 20° for Reynolds numbers 30,000 to 500,000, with the performance between 120,000 and 180,000 of particular interest. 
-Compare foils and show polars.
-After analyses, the foil SD7037 exhibited the most optimal behaviour for the main wing. For the tail section, the symmetrical foil NACA0009 was selected. At cruise, SD7037, exhibited the highest lift to drag ratio at cruise, as well as a stall speed less than 7.5m/s. NACA0009 exhibited lower drag penalties than the other symmetrical foils tested.
-A number of low-Reynolds airfoils were analysed to determine the most optimal shape for both the main wing and tail sections. Each was analysed at angles of attack varying from -5 to 20° for Reynolds numbers 30,000 to 500,000, with the performance between 120,000 and 180,000 of particular interest. 
-Compare foils and show polars.
-After analyses, the foil SD7037 exhibited the most optimal behaviour for the main wing. For the tail section, the symmetrical foil NACA0009 was selected. At cruise, SD7037, exhibited the highest lift to drag ratio at cruise, as well as a stall speed less than 7.5m/s. NACA0009 exhibited lower drag penalties than the other symmetrical foils tested.
-      </p>
-
-    </div>
-
-  </details>
-
-
-  <details class="accordion-item">
-
-    <summary>Wing developement</summary>
-
-    <div class="accordion-body">
-
-      <p>
-        Various wing planforms were tested and compared with a straight wing. Sweep, taper and twist were varied to obtain the most efficient platform. 
-      </p>
-
-    </div>
-
-  </details>
-
-  <details class="accordion-item">
-
-    <summary>Tail section</summary>
-
-    <div class="accordion-body">
-
-      <p>
-        l_vt and l_vh, the distance from the main wing train trailing edge were selected as 0.5 such as to not make the tail boom diameter too large. To ensure the tail plane has enough stability authority, a tailplane volume coefficient of V_H of 0.5 was selected, similarly for the vertical stabiliser, a V_V value of 0.04 was selected. Aspect ratios for both were selected lower than that of the main wing, 3 and 2 respectively to maintain control authority after the main wing has stalled. Resulting in the span of the horzontal stabiliser to be 0.39m and height of the fin to be 0.18m.
-      </p>
-
-    </div>
-
-  </details>
-  <details class="accordion-item">
-
-    <summary>Control surfaces and authority</summary>
-
-    <div class="accordion-body">
-
-      <p>
-        Your content here.
-      </p>
-
-    </div>
-
-  </details>
-    <details class="accordion-item">
-
-    <summary>Longitudinal stability</summary>
-
-    <div class="accordion-body">
-
-      <p>
-        Your content here.
-      </p>
-
-    </div>
-
-  </details>
-
-</div>
-  </section>
-</div>
-
-<div>
-  <section id="CFD" data-cat="CFD">
-    <div class="wrap">
-      <span class="tag">
-        Aerodynamic evaluation
-      </span>
-      <h2>
-        CFD
-      </h2>
-    </div>
     <p>
-      To validate some of the aerodynamic results obtained in XFLR5, CFD (Ansys fluent) was conducted on the main wing with and without flaps deployed to determine lift, efficiency and stall conditions. CFD would have been conducted on the whole aircraft but was not feasible due to my room becoming too hot during the July UK heatwave.
+      Once basic aerodynamic calculations had been completed, wing development could begin. The foil was selected using XFOIL direct analysis; the wing, tailplane and vertical stabiliser optimised using XFLR5; control surfaces effectiveness was determined using an AVL wrapper for Python.
     </p>
+
     <div class="accordion">
 
       <details class="accordion-item">
-
-        <summary>Meshing</summary>
-
+        <summary>Foil selection</summary>
         <div class="accordion-body">
-
           <p>
-            
+            A number of low-Reynolds airfoils were analysed to determine the most optimal shape for both the main wing and tail sections. Each was analysed at angles of attack varying from -5 to 20° for Reynolds numbers 30,000 to 500,000, with the performance between 120,000 and 180,000 of particular interest.
+          </p>
+          <p>
+            After analysis, the foil SD7037 exhibited the most optimal behaviour for the main wing. For the tail section, the symmetrical foil NACA0009 was selected. At cruise, SD7037 exhibited the highest lift-to-drag ratio, as well as a stall speed less than 7.5 m/s. NACA0009 exhibited lower drag penalties than the other symmetrical foils tested.
+          </p>
+          <!-- ============================================================
+              FOIL SELECTION — comparison table (data already in your
+              spreadsheet, no export needed) + a polar chart for the
+              winning foil (SD7037), which needs ONE small export.
+              ============================================================ -->
+
+          <h3 style="font-family:var(--font-display); font-size:18px; margin-bottom:12px;">Foil comparison</h3>
+
+          <table class="spec-table foil-table">
+            <thead>
+              <tr>
+                <td>Foil</td>
+                <td>C_L max</td>
+                <td>AoA @ C_L max</td>
+                <td>V @ C_L max</td>
+                <td>Glide ratio (stall cond.)</td>
+                <td>C_L (cruise cond.)</td>
+                <td>Glide ratio (cruise cond.)</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>AG35</td><td>1.257</td><td>9.89°</td><td>6.39 m/s</td><td>57.45</td><td>0.89</td><td>54.84</td></tr>
+              <tr><td>E193</td><td>1.41</td><td>8.28°</td><td>6.03 m/s</td><td>66.20</td><td>1.02</td><td>44.42</td></tr>
+              <tr class="foil-winner"><td>SD7037 ✓</td><td>1.26</td><td>9.83°</td><td>6.38 m/s</td><td>63.24</td><td>0.90</td><td>60.93</td></tr>
+              <tr><td>SG6043</td><td>1.61</td><td>12.56°</td><td>5.64 m/s</td><td>78.00</td><td>1.34</td><td>35.11</td></tr>
+              <tr><td>NACA4413</td><td>1.47</td><td>12.01°</td><td>5.90 m/s</td><td>56.30</td><td>1.40</td><td>47.32</td></tr>
+            </tbody>
+          </table>
+
+          <p style="color:var(--text-dim); font-size:14px; margin-top:14px;">
+            <strong style="color:var(--amber);">SD7037</strong> was selected: whilst it doesn't have the single highest C_L max or stall-condition glide ratio, it has the best <em>cruise-condition</em> glide ratio (60.93) of all five candidates, the metric that matters most for cruise efficiency. It does this whilst maintaining a stall efficiency lower than the desired value.
           </p>
 
-        </div>
 
+          <h3 style="font-family:var(--font-display); font-size:18px; margin:32px 0 12px;">SD7037 polar (winning foil)</h3>
+          <div id="sd7037-polar" style="max-width:600px;"></div>
+
+          <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+          <script>
+            // === REPLACE these two arrays with your actual exported polar data ===
+            // alpha_deg: angle of attack values (x-axis)
+            // cl: corresponding C_L values (y-axis)
+            const alpha_deg = [-4,   -2,        0,      2,      4,    6,       8,     10,     12,     14];
+            const cl =        [-0.1813, 0.1314, 0.3833, 0.5915, 0.796, 0.9882, 1.1626, 1.2677, 1.2799, 1.11673];
+            // ======================================================================
+
+            Plotly.newPlot('sd7037-polar', [{
+              x: alpha_deg,
+              y: cl,
+              mode: 'lines+markers',
+              line: { color: '#e8a33d' },
+              name: 'SD7037'
+            }], {
+              title: 'C_L vs Angle of Attack — SD7037',
+              paper_bgcolor: 'transparent',
+              plot_bgcolor: 'transparent',
+              font: { color: '#e7ecef', family: 'IBM Plex Mono' },
+              xaxis: { title: 'AoA (deg)', gridcolor: '#2a3540' },
+              yaxis: { title: 'C_L', gridcolor: '#2a3540' },
+              margin: { t: 40, r: 20, l: 55, b: 45 }
+            }, { displayModeBar: false });
+          </script>
+
+
+          <style>
+          .foil-table thead td {
+            color: var(--teal);
+            text-transform: uppercase;
+            font-size: 10.5px;
+            letter-spacing: 0.04em;
+            border-bottom: 1px solid var(--line-bright);
+          }
+          .foil-winner td {
+            color: var(--amber);
+            font-weight: 500;
+          }
+          </style>
+          <div class="calc-grid">
+ 
+          
+        </div>
+      </details>
+
+      <details class="accordion-item">
+        <summary>Wing development</summary>
+        <div class="accordion-body">
+          <p>
+            Various wing planforms were tested and compared with a straight wing. Sweep, taper and twist were varied to obtain the most efficient platform. It is important to note when using XFoil direct foil analysis, 3D effects are not accounted for so values of L/D and and C_L_max will be lower once the foil has been applied to a wing. 
+          </p>
+          <p>
+            Once a wing design had been made, it was analysed at both the stall speed of 7.5m/s and a revised cruise speed, based off of the peak of the C_L/C_D polar where the aircraft is most efficient (of the final wing - 10.8m/s). 
+          </p>
+            <!-- ============================================================
+      ACCURATE WING PLANFORM GENERATOR
+      Feed in your real XFLR5 panel numbers (root chord, tip chord,
+      span, offset) and it draws the exact trapezoid shape — no
+      hand-guessing coordinates.
+
+      Where to get these 4 numbers: XFLR5 > Wing and Plane Design >
+      double-click your wing > the panel definition table has
+      columns for Chord (root), Chord (tip), Span, and Offset.
+      ============================================================ -->
+
+            <div class="wing-compare" id="wing-compare-container"></div>
+
+            <script>
+            // One entry per planform you tested. All units in mm (or any
+            // consistent unit — only the ratios between them matter for the drawing).
+            const wingConfigs = [
+              { name: "Straight",           rootChord: 250, tipChord: 250, span: 500, offset: 0,   glideRatio: 15.32 },
+              { name: "3° twist at tip",    rootChord: 250, tipChord: 250, span: 500, offset: 0,   glideRatio: 15.45 },
+              { name: "+ Taper",            rootChord: 300, tipChord: 200, span: 500, offset: 50,  glideRatio: 15.47 },
+              { name: "+ Sweep",            rootChord: 280, tipChord: 220, span: 500, offset: 60,  glideRatio: 15.47, note: "chosen to move forward with — eases manufacture" },
+            ];
+
+            function buildWingSVG(cfg) {
+              // Drawing one half-wing (root to tip), then mirroring for the full span.
+              const padding = 10;
+              const drawWidth = 300;   // pixels available for the full wingspan
+              const drawHeight = 60;
+
+              const maxChord = Math.max(cfg.rootChord, cfg.tipChord + cfg.offset);
+              const scaleX = (drawWidth / 2 - padding) / cfg.span;   // half-span maps to half the drawing width
+              const scaleY = (drawHeight - padding * 2) / maxChord;
+
+              const rootLE = 0;
+              const rootTE = cfg.rootChord;
+              const tipLE = cfg.offset;
+              const tipTE = cfg.offset + cfg.tipChord;
+
+              // Convert real geometry -> SVG pixel coords.
+              // Spanwise (0..span) maps left-to-right on the right half; mirrored on the left.
+              const cx = drawWidth / 2; // wing root sits at horizontal centre
+
+              const rightHalf = [
+                [cx, padding + rootLE * scaleY],
+                [cx + cfg.span * scaleX, padding + tipLE * scaleY],
+                [cx + cfg.span * scaleX, padding + tipTE * scaleY],
+                [cx, padding + rootTE * scaleY]
+              ];
+              const leftHalf = rightHalf.map(([x, y]) => [2 * cx - x, y]);
+
+              const pathPoints = [...leftHalf.slice().reverse(), ...rightHalf]
+                .map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`)
+                .join(' L ');
+
+              return `<svg class="wing-icon" viewBox="0 0 ${drawWidth} ${drawHeight}">
+                <path d="M ${pathPoints} Z" fill="none" stroke="var(--line-bright)" stroke-width="1.5"/>
+              </svg>`;
+            }
+
+            const container = document.getElementById('wing-compare-container');
+            wingConfigs.forEach(cfg => {
+              const row = document.createElement('div');
+              row.className = 'wing-row';
+              row.innerHTML = `
+                ${buildWingSVG(cfg)}
+                <div class="wing-info">
+                  <span class="wing-name">${cfg.name}</span>
+                  <span class="wing-stat">Glide ratio <strong>${cfg.glideRatio}</strong>${cfg.note ? ` <span class="wing-note">(${cfg.note})</span>` : ''}</span>
+                </div>
+              `;
+              container.appendChild(row);
+            });
+            </script>
+
+            <style>
+            .wing-compare { border: 1px solid var(--line); margin: 20px 0; }
+            .wing-row {
+              display: flex;
+              align-items: center;
+              gap: 20px;
+              padding: 14px 20px;
+              border-bottom: 1px solid var(--line);
+            }
+            .wing-row:last-child { border-bottom: none; }
+            .wing-icon { width: 140px; height: 50px; flex-shrink: 0; }
+            .wing-info { display: flex; flex-direction: column; gap: 3px; font-family: var(--font-mono); font-size: 13px; }
+            .wing-name { color: var(--text); }
+            .wing-stat { color: var(--text-dim); font-size: 12.5px; }
+            .wing-stat strong { color: var(--amber); font-weight: 500; }
+            .wing-note { color: var(--text-faint); }
+            </style>
+            <p>
+              Adding twist and taper to the wing improve the efficiency of the wing. the addition of sweep to the wing design did not improve the efficiency of the wing, however it did allow the the spar to be placed perpendicular to the centerline at the thickest point allowing the manufacture and structural design to be easier. This amounted to a maximum glide ratio of 15.47, which corresponds to a cruise speed of 10.79m/s. Stall could not be correctly calculated by the solver so stall charactersitcs could not be determined at this stage.
+            </p>
+            <!-- ============================================================
+     ACCURATE WING PLANFORM GENERATOR (multi-station version)
+     Feed in your real XFLR5 station table (y, chord, offset) —
+     duplicate y-rows already removed — and it draws the exact
+     piecewise leading/trailing edge shape.
+
+     Where these numbers come from: XFLR5 > Wing and Plane Design
+     > double-click your wing > the station table. Only keep ONE
+     row per unique y value — duplicate rows at the same y are
+     just panel breaks (for control surfaces / foil interpolation)
+     and don't add new geometry.
+     ============================================================ -->
+
+            <div class="wing-compare2" id="wing-compare-container2"></div>
+
+            <script>
+            // One entry per planform. `stations` = deduplicated list of
+            // { y, chord, offset } read straight from XFLR5's table, root to tip.
+            // All in the same units as XFLR5 (metres, in your case).
+            const wingConfigs2 = [
+              {
+                name: "Sweep (chosen)",
+                glideRatio: 15.51,
+                stations: [
+                  { y: 0.000, chord: 0.280, offset: 0.000 },
+                  { y: 0.063, chord: 0.273, offset: 0.007 },
+                  { y: 0.313, chord: 0.251, offset: 0.029 },
+                  { y: 0.475, chord: 0.222, offset: 0.057 },
+                  { y: 0.500, chord: 0.220, offset: 0.060 }
+                ]
+              }
+            ];
+
+            function buildWingSVG(cfg) {
+              const padding = 10;
+              const drawWidth = 300;
+              const drawHeight = 70;
+
+              const span = cfg.stations[cfg.stations.length - 1].y; // half-span (root to tip)
+              const maxChord = Math.max(...cfg.stations.map(s => s.offset + s.chord));
+
+              const scaleX = (drawWidth / 2 - padding) / span;
+              const scaleY = (drawHeight - padding * 2) / maxChord;
+              const cx = drawWidth / 2; // root sits at horizontal centre
+
+              // Right half: leading edge (root -> tip), then trailing edge (tip -> root)
+              const leRight = cfg.stations.map(s => [cx + s.y * scaleX, padding + s.offset * scaleY]);
+              const teRight = [...cfg.stations].reverse().map(s => [cx + s.y * scaleX, padding + (s.offset + s.chord) * scaleY]);
+              const rightHalf = [...leRight, ...teRight];
+
+              // Mirror for the left half (other wing)
+              const leftHalf = rightHalf.map(([x, y]) => [2 * cx - x, y]).reverse();
+
+              const allPoints = [...leftHalf, ...rightHalf]
+                .map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`)
+                .join(' L ');
+
+              return `<svg class="wing-icon" viewBox="0 0 ${drawWidth} ${drawHeight}">
+                <path d="M ${allPoints} Z" fill="none" stroke="var(--line-bright)" stroke-width="1.5"/>
+              </svg>`;
+            }
+
+            const container2 = document.getElementById('wing-compare-container2');
+            wingConfigs2.forEach(cfg => {
+              const row = document.createElement('div');
+              row.className = 'wing-row';
+              row.innerHTML = `
+                ${buildWingSVG(cfg)}
+                <div class="wing-info">
+                  <span class="wing-name">${cfg.name}</span>
+                  <span class="wing-stat">Glide ratio <strong>${cfg.glideRatio}</strong>${cfg.note ? ` <span class="wing-note">(${cfg.note})</span>` : ''}</span>
+                </div>
+              `;
+              container2.appendChild(row);
+            });
+            </script>
+
+            <style>
+            .wing-compare { border: 1px solid var(--line); margin: 20px 0; }
+            .wing-row {
+              display: flex;
+              align-items: center;
+              gap: 20px;
+              padding: 14px 20px;
+              border-bottom: 1px solid var(--line);
+            }
+            .wing-row:last-child { border-bottom: none; }
+            .wing-icon { width: 160px; height: 55px; flex-shrink: 0; }
+            .wing-info { display: flex; flex-direction: column; gap: 3px; font-family: var(--font-mono); font-size: 13px; }
+            .wing-name { color: var(--text); }
+            .wing-stat { color: var(--text-dim); font-size: 12.5px; }
+            .wing-stat strong { color: var(--amber); font-weight: 500; }
+            .wing-note { color: var(--text-faint); }
+            </style>
+            <p>
+              After station for flaps were added, it was found that having a non straight tapered leading edge slightly increased efficiency, this is likely due to the wing becoming slightly more eliptical, therefore efficient. Final wing performance:
+            </p>
+            <!-- ============================================================
+                  WING PERFORMANCE — real XFLR5 VLM polar data (SD7073 final,
+                  T1 @ 10.2 m/s). Two linked charts: CL vs alpha (lift curve)
+                  and the CL/CD drag polar.
+                  ============================================================ -->
+
+              <h3 style="font-family:var(--font-display); font-size:18px; margin-bottom:12px;">Lift curve (C_L vs Angle of Attack)</h3>
+              <div id="wing-cl-alpha" style="max-width:600px; margin-bottom:36px;"></div>
+
+              <h3 style="font-family:var(--font-display); font-size:18px; margin-bottom:12px;">Drag polar (C_L vs C_D)</h3>
+              <div id="wing-cl-cd" style="max-width:600px;"></div>
+
+              <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+              <script>
+                // Real data, exported from XFLR5 (SD7073 final, T1-10.2 m/s-VLM2)
+                const alpha = [-4.250, -4.000, -3.750, -3.500, -3.250, -3.000, -2.750, -2.500, -2.250, -2.000, -1.750, -1.500, -1.250, -1.000, -0.750, -0.500, -0.250, 0.000, 0.250, 0.500, 0.750, 1.000, 1.250, 1.500, 1.750, 2.000, 2.250, 2.500, 2.750, 3.000, 3.250, 3.500, 3.750, 4.000, 4.250, 4.500, 4.750, 5.000, 5.250, 5.500, 5.750, 6.000, 6.250, 6.500, 6.750, 7.000, 7.250, 7.500, 7.750, 8.000, 8.250, 8.500, 8.750, 9.000, 9.250, 9.500, 9.750, 10.000, 10.250, 10.500, 10.750, 11.000, 11.250, 11.500, 11.750, 12.000, 12.250, 12.500, 12.750, 13.000, 13.250, 13.500, 13.750, 14.000, 14.250, 14.500];
+                const cl2 =    [-0.198584, -0.180373, -0.162150, -0.143916, -0.125672, -0.107421, -0.089161, -0.070895, -0.052623, -0.034347, -0.016068, 0.002215, 0.020498, 0.038782, 0.057066, 0.075348, 0.093627, 0.111903, 0.130174, 0.148439, 0.166698, 0.184949, 0.203192, 0.221424, 0.239647, 0.257857, 0.276055, 0.294239, 0.312408, 0.330561, 0.348698, 0.366817, 0.384917, 0.402998, 0.421058, 0.439096, 0.457111, 0.475103, 0.493070, 0.511012, 0.528927, 0.546814, 0.564673, 0.582502, 0.600301, 0.618069, 0.635804, 0.653505, 0.671173, 0.688805, 0.706401, 0.723960, 0.741482, 0.758964, 0.776406, 0.793808, 0.811168, 0.828485, 0.845760, 0.862989, 0.880174, 0.897312, 0.914404, 0.931448, 0.948443, 0.965388, 0.982284, 0.999127, 1.015919, 1.032658, 1.049344, 1.065975, 1.082550, 1.099070, 1.115532, 1.131937];
+                const cd =    [0.037679, 0.034773, 0.032150, 0.029866, 0.027940, 0.026310, 0.024951, 0.023820, 0.022867, 0.022068, 0.021440, 0.020909, 0.020501, 0.020187, 0.019980, 0.019857, 0.019725, 0.019635, 0.019509, 0.019255, 0.019154, 0.019137, 0.019211, 0.019354, 0.019700, 0.020130, 0.020649, 0.021271, 0.021945, 0.022709, 0.023541, 0.024448, 0.025412, 0.026424, 0.027495, 0.028606, 0.029788, 0.031034, 0.032327, 0.033678, 0.035073, 0.036527, 0.038057, 0.039640, 0.041270, 0.042966, 0.044724, 0.046525, 0.048377, 0.050296, 0.052264, 0.054287, 0.056368, 0.058495, 0.060672, 0.062912, 0.065190, 0.067519, 0.069908, 0.072339, 0.074825, 0.077358, 0.079937, 0.082590, 0.085297, 0.088031, 0.090809, 0.093675, 0.096591, 0.099576, 0.102588, 0.105618, 0.108754, 0.111920, 0.115151, 0.118433];
+
+                Plotly.newPlot('wing-cl-alpha', [{
+                  x: alpha, y: cl2, mode: 'lines+markers',
+                  line: { color: '#e8a33d' }, marker: { size: 4 }
+                }], {
+                  paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+                  font: { color: '#e7ecef', family: 'IBM Plex Mono' },
+                  xaxis: { title: 'Angle of attack (deg)', gridcolor: '#2a3540' },
+                  yaxis: { title: 'C_L', gridcolor: '#2a3540' },
+                  margin: { t: 20, r: 20, l: 55, b: 45 }
+                }, { displayModeBar: false });
+
+                Plotly.newPlot('wing-cl-cd', [{
+                  x: cd, y: cl2, mode: 'lines+markers',
+                  line: { color: '#4fa98c' }, marker: { size: 4 }
+                }], {
+                  paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+                  font: { color: '#e7ecef', family: 'IBM Plex Mono' },
+                  xaxis: { title: 'C_D', gridcolor: '#2a3540' },
+                  yaxis: { title: 'C_L', gridcolor: '#2a3540' },
+                  margin: { t: 20, r: 20, l: 55, b: 45 }
+                }, { displayModeBar: false });
+              </script>
+          </div>
+        </div>
       </details>
 
 
       <details class="accordion-item">
+        <summary>Tail section</summary>
+        <div class="accordion-body">
+          <p>
+            As mentioned previously, for more streamlined design and manufacture, a conventional tail configuration was chosen.
+          </p>
+          <p>
+            l_vt and l_vh, the distance of the vertical and horizontal tail from the main wing trailing edge, were selected as 0.5 so as to not make the tail boom diameter too large. To ensure the tailplane has enough stability authority, a tailplane volume coefficient V_H of 0.5 was selected; similarly for the vertical stabiliser, a V_V value of 0.04 was selected. Aspect ratios for both were selected lower than that of the main wing — 3 and 2 respectively — to maintain control authority after the main wing has stalled, resulting in a horizontal stabiliser span of 0.39 m and a fin height of 0.18 m.
+          </p>
+          <p>
+            For both sections, the symmetrical foil NACA0009 was selected from a couple other symmetrical foils due to it having less drag than the other foils. Foils were symmetrical so that they can produce equal positive and negative lift in a desired direction when a control surface is deflected.
+          </p>
+        </div>
+      </details>
 
+      <details class="accordion-item">
+        <summary>Control surfaces and authority</summary>
+        <div class="accordion-body">
+          <p>
+            Due to the size of the aircraft, a standard system of control surfaces were selected (elevator, rudder, ailerons) as opposed to pure tail control (elevator, rudder). To impove stall characteristics, I additonally wanted to add flaps to the inboard section of the main wing.
+          </p>
+          <p>
+            Each of the control surfaces were sized as 30% of the chord length, designed with a maximum deflection of 20&deg; each direction.
+          </p>
+
+        </div>
+      </details>
+
+      <details class="accordion-item">
+        <summary>Longitudinal stability</summary>
+        <div class="accordion-body">
+          <p>Your content here.</p>
+        </div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<section id="cfd" data-cat="CFD">
+  <div class="wrap">
+    <span class="tag">Aerodynamic evaluation</span>
+    <h2>CFD</h2>
+
+    <p>
+      To validate some of the aerodynamic results obtained in XFLR5, CFD (Ansys Fluent) was conducted on the main wing with and without flaps deployed to determine lift, efficiency and stall conditions. CFD would have been conducted on the whole aircraft but was not feasible due to my room becoming too hot during the July UK heatwave.
+    </p>
+
+    <div class="accordion">
+
+      <details class="accordion-item">
+        <summary>Meshing and set-up</summary>
+        <div class="accordion-body">
+          <p>
+            Stall is caused by the boundary layer of air on the surface of the wing becoming detatched from the surface and the wing losing lift. Boundary layers form very close to the surface (order of 10^-3m), so a fine, structured mesh is required close to the surface to capture this behavior. On the surface of the wing, a structured mesh called an inflation layer, size 0.00001m, was constructed to correctly capture the local flow effects. 
+          </p>
+          
+          <img src="Images/Inflation.png" alt="Inflation Layer" width="400" height="400">
+          <p>
+            Away from the wing, a control volume was built, extending 30m infront, above and behind the wing to capture larger behaviors. An unstructured mesh of face sizing size 2mm was built to do this. 
+          </p>
+          
+        <img src="Images/sparse.png" alt="Sparse Mesh" width="400" height="400">
+        </div>
+      </details>
+
+      <details class="accordion-item">
         <summary>Models</summary>
-
         <div class="accordion-body">
-
           <p>
-            Your content here.
+            To model stall, 
           </p>
-
         </div>
-
       </details>
-            <details class="accordion-item">
 
+      <details class="accordion-item">
         <summary>Full wing CFD</summary>
-
         <div class="accordion-body">
-
-          <p>
-            Your content here.
-          </p>
-
+          <p>Your content here.</p>
         </div>
-
       </details>
 
+    </div>
+  </div>
+</section>
+
+<section id="electronics-and-propulsion" data-cat="electronics">
+  <div class="wrap">
+    <span class="tag">Electronics</span>
+    <h2>Electronics and propulsion</h2>
+
+    <p>
+      Electronics were selected so as to minimise weight as well as minimise cost. First thrust then motor requirements were found, before a power system and flight computer were selected.
+    </p>
+
+    <div class="accordion">
+
+      <details class="accordion-item">
+        <summary>Propulsion</summary>
+        <div class="accordion-body">
+          <p>
+            Propulsion was sized based on the worst-case thrust scenario, which occurs during take-off. Using the lift-to-drag ratio obtained during CFD (13.81) with a penalty (L/D = 10) to account for fuselage drag.
+          </p>
+        </div>
+      </details>
+
+      <details class="accordion-item">
+        <summary>Power requirements</summary>
+        <div class="accordion-body">
+          <p>Your content here.</p>
+        </div>
+      </details>
+
+      <details class="accordion-item">
+        <summary>Flight control system</summary>
+        <div class="accordion-body">
+          <p>Your content here.</p>
+        </div>
+      </details>
 
     </div>
-  </section>
-</div>
-
-<div>
-  <section id="Electronics and propulsion" data-cat="electronics">
-    <div class ="wrap">
-      <span class = "tag>">
-        Electronics
-      </span>
-      <p>
-        Electronics were selected as to minimise weight as well as minimise cost. First thrust then motor requirements were found, before a power and flight computer were selected.
-      </p>
-      <div class="accordion">
-
-        <details class="accordion-item">
-
-          <summary>Propulsion</summary>
-
-          <div class="accordion-body">
-
-            <p>
-              Propulsion was sized based from the worse-case thrust scenario which occurs during take off. Using the lift to drag ratio obtained during CFD (13.81) with a penaulty (L/D = 10) to account for fusilage drag.
-            </p>
-
-          </div>
-
-        </details>
-
-
-        <details class="accordion-item">
-
-          <summary>Power requirements</summary>
-
-          <div class="accordion-body">
-
-            <p>
-              Your content here.
-            </p>
-
-          </div>
-
-        </details>
-        <details class="accordion-item">
-
-          <summary>flight control system</summary>
-
-          <div class="accordion-body">
-
-            <p>
-              Your content here.
-            </p>
-
-          </div>
-
-        </details>
-
-
-      </div>
-    </div>
-  </section>
-</div>
+  </div>
+</section>
 
 <section>
   <div class="wrap">
@@ -357,10 +691,9 @@ After analyses, the foil SD7037 exhibited the most optimal behaviour for the mai
   </div>
 </footer>
 
-</body>
 <script>
 Prism.highlightAll();
- 
+
 document.querySelectorAll('.cat-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -372,4 +705,5 @@ document.querySelectorAll('.cat-btn').forEach(btn => {
   });
 });
 </script>
+</body>
 </html>
