@@ -493,35 +493,40 @@
               <h3 style="font-family:var(--font-display); font-size:18px; margin-bottom:12px;">Drag polar (C_L vs C_D)</h3>
               <div id="wing-cl-cd" style="max-width:600px;"></div>
 
-              <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-              <script>
-                // Real data, exported from XFLR5 (SD7073 final, T1-10.2 m/s-VLM2)
-                const alpha = [-4.250, -4.000, -3.750, -3.500, -3.250, -3.000, -2.750, -2.500, -2.250, -2.000, -1.750, -1.500, -1.250, -1.000, -0.750, -0.500, -0.250, 0.000, 0.250, 0.500, 0.750, 1.000, 1.250, 1.500, 1.750, 2.000, 2.250, 2.500, 2.750, 3.000, 3.250, 3.500, 3.750, 4.000, 4.250, 4.500, 4.750, 5.000, 5.250, 5.500, 5.750, 6.000, 6.250, 6.500, 6.750, 7.000, 7.250, 7.500, 7.750, 8.000, 8.250, 8.500, 8.750, 9.000, 9.250, 9.500, 9.750, 10.000, 10.250, 10.500, 10.750, 11.000, 11.250, 11.500, 11.750, 12.000, 12.250, 12.500, 12.750, 13.000, 13.250, 13.500, 13.750, 14.000, 14.250, 14.500];
-                const cl2 =    [-0.198584, -0.180373, -0.162150, -0.143916, -0.125672, -0.107421, -0.089161, -0.070895, -0.052623, -0.034347, -0.016068, 0.002215, 0.020498, 0.038782, 0.057066, 0.075348, 0.093627, 0.111903, 0.130174, 0.148439, 0.166698, 0.184949, 0.203192, 0.221424, 0.239647, 0.257857, 0.276055, 0.294239, 0.312408, 0.330561, 0.348698, 0.366817, 0.384917, 0.402998, 0.421058, 0.439096, 0.457111, 0.475103, 0.493070, 0.511012, 0.528927, 0.546814, 0.564673, 0.582502, 0.600301, 0.618069, 0.635804, 0.653505, 0.671173, 0.688805, 0.706401, 0.723960, 0.741482, 0.758964, 0.776406, 0.793808, 0.811168, 0.828485, 0.845760, 0.862989, 0.880174, 0.897312, 0.914404, 0.931448, 0.948443, 0.965388, 0.982284, 0.999127, 1.015919, 1.032658, 1.049344, 1.065975, 1.082550, 1.099070, 1.115532, 1.131937];
-                const cd =    [0.037679, 0.034773, 0.032150, 0.029866, 0.027940, 0.026310, 0.024951, 0.023820, 0.022867, 0.022068, 0.021440, 0.020909, 0.020501, 0.020187, 0.019980, 0.019857, 0.019725, 0.019635, 0.019509, 0.019255, 0.019154, 0.019137, 0.019211, 0.019354, 0.019700, 0.020130, 0.020649, 0.021271, 0.021945, 0.022709, 0.023541, 0.024448, 0.025412, 0.026424, 0.027495, 0.028606, 0.029788, 0.031034, 0.032327, 0.033678, 0.035073, 0.036527, 0.038057, 0.039640, 0.041270, 0.042966, 0.044724, 0.046525, 0.048377, 0.050296, 0.052264, 0.054287, 0.056368, 0.058495, 0.060672, 0.062912, 0.065190, 0.067519, 0.069908, 0.072339, 0.074825, 0.077358, 0.079937, 0.082590, 0.085297, 0.088031, 0.090809, 0.093675, 0.096591, 0.099576, 0.102588, 0.105618, 0.108754, 0.111920, 0.115151, 0.118433];
+              <!-- CL vs alpha with C_L max and cruise C_L highlighted -->
+            <div id="wing-cl-alpha" style="max-width:600px;"></div>
 
-                Plotly.newPlot('wing-cl-alpha', [{
-                  x: alpha, y: cl2, mode: 'lines+markers',
-                  line: { color: '#e8a33d' }, marker: { size: 4 }
-                }], {
-                  paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
-                  font: { color: '#e7ecef', family: 'IBM Plex Mono' },
-                  xaxis: { title: 'Angle of attack (deg)', gridcolor: '#2a3540' },
-                  yaxis: { title: 'C_L', gridcolor: '#2a3540' },
-                  margin: { t: 20, r: 20, l: 55, b: 45 }
-                }, { displayModeBar: false });
+            <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+            <script>
+              const alpha = [-4.250, -4.000, -3.750, -3.500, -3.250, -3.000, -2.750, -2.500, -2.250, -2.000, -1.750, -1.500, -1.250, -1.000, -0.750, -0.500, -0.250, 0.000, 0.250, 0.500, 0.750, 1.000, 1.250, 1.500, 1.750, 2.000, 2.250, 2.500, 2.750, 3.000, 3.250, 3.500, 3.750, 4.000, 4.250, 4.500, 4.750, 5.000, 5.250, 5.500, 5.750, 6.000, 6.250, 6.500, 6.750, 7.000, 7.250, 7.500, 7.750, 8.000, 8.250, 8.500, 8.750, 9.000, 9.250, 9.500, 9.750, 10.000, 10.250, 10.500, 10.750, 11.000, 11.250, 11.500, 11.750, 12.000, 12.250, 12.500, 12.750, 13.000, 13.250, 13.500, 13.750, 14.000, 14.250, 14.500];
+              const cl2 =    [-0.198584, -0.180373, -0.162150, -0.143916, -0.125672, -0.107421, -0.089161, -0.070895, -0.052623, -0.034347, -0.016068, 0.002215, 0.020498, 0.038782, 0.057066, 0.075348, 0.093627, 0.111903, 0.130174, 0.148439, 0.166698, 0.184949, 0.203192, 0.221424, 0.239647, 0.257857, 0.276055, 0.294239, 0.312408, 0.330561, 0.348698, 0.366817, 0.384917, 0.402998, 0.421058, 0.439096, 0.457111, 0.475103, 0.493070, 0.511012, 0.528927, 0.546814, 0.564673, 0.582502, 0.600301, 0.618069, 0.635804, 0.653505, 0.671173, 0.688805, 0.706401, 0.723960, 0.741482, 0.758964, 0.776406, 0.793808, 0.811168, 0.828485, 0.845760, 0.862989, 0.880174, 0.897312, 0.914404, 0.931448, 0.948443, 0.965388, 0.982284, 0.999127, 1.015919, 1.032658, 1.049344, 1.065975, 1.082550, 1.099070, 1.115532, 1.131937];
 
-                Plotly.newPlot('wing-cl-cd', [{
-                  x: cd, y: cl2, mode: 'lines+markers',
-                  line: { color: '#4fa98c' }, marker: { size: 4 }
-                }], {
-                  paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
-                  font: { color: '#e7ecef', family: 'IBM Plex Mono' },
-                  xaxis: { title: 'C_D', gridcolor: '#2a3540' },
-                  yaxis: { title: 'C_L', gridcolor: '#2a3540' },
-                  margin: { t: 20, r: 20, l: 55, b: 45 }
-                }, { displayModeBar: false });
-              </script>
+              Plotly.newPlot('wing-cl-alpha', [
+                {
+                  x: alpha, y: cl2, mode: 'lines',
+                  line: { color: '#e8a33d' }, name: 'C_L'
+                },
+                {
+                  x: [14.5], y: [1.132], mode: 'markers+text',
+                  marker: { color: '#4fa98c', size: 9 },
+                  text: ['C_L max'], textposition: 'top center',
+                  textfont: { color: '#4fa98c' }, name: 'C_L max'
+                },
+                {
+                  x: [4.0], y: [0.403], mode: 'markers+text',
+                  marker: { color: '#ffffff', size: 9 },
+                  text: ['Cruise C_L'], textposition: 'bottom center',
+                  textfont: { color: '#e7ecef' }, name: 'Cruise'
+                }
+              ], {
+                paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+                font: { color: '#e7ecef', family: 'IBM Plex Mono' },
+                xaxis: { title: 'Angle of attack (deg)', gridcolor: '#2a3540' },
+                yaxis: { title: 'C_L', gridcolor: '#2a3540' },
+                margin: { t: 20, r: 20, l: 55, b: 45 },
+                showlegend: false
+              }, { displayModeBar: false });
+            </script>
           </div>
         </div>
       </details>
@@ -539,6 +544,205 @@
           <p>
             For both sections, the symmetrical foil NACA0009 was selected from a couple other symmetrical foils due to it having less drag than the other foils. Foils were symmetrical so that they can produce equal positive and negative lift in a desired direction when a control surface is deflected.
           </p>
+          <p>
+            Aerodynamics retested - new stall speed update
+          </p>
+          <!-- ============================================================
+     TAILPLANE CALCULATIONS — horizontal stabiliser + fin sizing,
+     using the same calc-card component as your other calc sections.
+     ============================================================ -->
+
+<h3 style="font-family:var(--font-display); font-size:18px; margin-bottom:12px;">Horizontal stabiliser</h3>
+
+<div class="calc-grid">
+
+  <details class="calc-card">
+    <summary>
+      <span class="calc-label">Tail area</span>
+      <span class="calc-value">0.05<span class="calc-unit">m²</span></span>
+    </summary>
+    <div class="calc-explain">
+      <pre><code class="language-plain">S_tail = V_H * c_bar * S / l_ht</code></pre>
+      <p>Rearranged from the tail volume coefficient — the tail area needed to give sufficient pitch stability authority.</p>
+    </div>
+  </details>
+
+  <details class="calc-card">
+    <summary>
+      <span class="calc-label">Volume coefficient V_H</span>
+      <span class="calc-value">0.5</span>
+    </summary>
+    <div class="calc-explain">
+      <pre><code class="language-plain">V_H = (l_ht * S_tail) / (c_bar * S)</code></pre>
+      <p>Design target — a standard non-dimensional sizing parameter for horizontal tail authority, chosen from typical values for this aircraft class.</p>
+    </div>
+  </details>
+
+  <details class="calc-card">
+    <summary>
+      <span class="calc-label">Aspect ratio</span>
+      <span class="calc-value">3</span>
+    </summary>
+    <div class="calc-explain">
+      <pre><code class="language-plain">AR = b^2 / S_tail</code></pre>
+      <p>Chosen lower than the main wing's aspect ratio to retain control authority after the main wing has stalled.</p>
+    </div>
+  </details>
+
+  <details class="calc-card">
+    <summary>
+      <span class="calc-label">Span</span>
+      <span class="calc-value">0.387<span class="calc-unit">m</span></span>
+    </summary>
+    <div class="calc-explain">
+      <pre><code class="language-plain">b = sqrt(AR * S_tail)</code></pre>
+      <p>Derived from the target aspect ratio and tail area.</p>
+    </div>
+  </details>
+
+  <details class="calc-card">
+    <summary>
+      <span class="calc-label">Tail chord</span>
+      <span class="calc-value">0.129<span class="calc-unit">m</span></span>
+    </summary>
+    <div class="calc-explain">
+      <pre><code class="language-plain">c_ht = S_tail / b</code></pre>
+      <p>Mean chord of the horizontal stabiliser, from area over span.</p>
+    </div>
+  </details>
+
+  <details class="calc-card">
+    <summary>
+      <span class="calc-label">Tail arm</span>
+      <span class="calc-value">0.5<span class="calc-unit">m</span></span>
+    </summary>
+    <div class="calc-explain">
+      <p>Distance from the main wing's trailing edge to the tail — set to avoid an oversized tail boom diameter.</p>
+    </div>
+  </details>
+
+</div>
+
+
+<h3 style="font-family:var(--font-display); font-size:18px; margin:32px 0 12px;">Vertical fin</h3>
+
+<div class="calc-grid">
+
+  <details class="calc-card">
+    <summary>
+      <span class="calc-label">Fin area</span>
+      <span class="calc-value">0.016<span class="calc-unit">m²</span></span>
+    </summary>
+    <div class="calc-explain">
+      <pre><code class="language-plain">S_vt = V_V * b * S / l_vt</code></pre>
+      <p>Rearranged from the vertical volume coefficient — the fin area needed for yaw stability.</p>
+    </div>
+  </details>
+
+  <details class="calc-card">
+    <summary>
+      <span class="calc-label">Volume coefficient V_V</span>
+      <span class="calc-value">0.04</span>
+    </summary>
+    <div class="calc-explain">
+      <pre><code class="language-plain">V_V = (l_vt * S_vt) / (b * S)</code></pre>
+      <p>Design target for yaw stability authority, analogous to V_H for the horizontal tail.</p>
+    </div>
+  </details>
+
+  <details class="calc-card">
+    <summary>
+      <span class="calc-label">Aspect ratio</span>
+      <span class="calc-value">2</span>
+    </summary>
+    <div class="calc-explain">
+      <pre><code class="language-plain">AR = b_fin^2 / S_vt</code></pre>
+      <p>Kept lower than the main wing (and lower than the horizontal stabiliser) for a compact, structurally simple fin.</p>
+    </div>
+  </details>
+
+  <details class="calc-card">
+    <summary>
+      <span class="calc-label">Fin height</span>
+      <span class="calc-value">0.179<span class="calc-unit">m</span></span>
+    </summary>
+    <div class="calc-explain">
+      <pre><code class="language-plain">b_fin = sqrt(AR * S_vt)</code></pre>
+      <p>Derived from the target aspect ratio and fin area.</p>
+    </div>
+  </details>
+
+  <details class="calc-card">
+    <summary>
+      <span class="calc-label">Fin chord</span>
+      <span class="calc-value">0.089<span class="calc-unit">m</span></span>
+    </summary>
+    <div class="calc-explain">
+      <pre><code class="language-plain">c_vt = S_vt / b_fin</code></pre>
+      <p>Mean chord of the vertical fin, from area over height.</p>
+    </div>
+          </details>
+
+        </div>
+
+
+        <h3 style="font-family:var(--font-display); font-size:18px; margin:32px 0 12px;">Final setup performance</h3>
+
+        <table class="spec-table">
+          <tr><td>Peak glide ratio</td><td>13.81</td></tr>
+          <tr><td>C_L at peak</td><td>0.495</td></tr>
+          <tr><td>Corresponding speed</td><td>10.18 m/s</td></tr>
+          <tr><td>Lift curve slope</td><td>4.16 /rad</td></tr>
+        </table>
+
+        <style>
+        .calc-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 1px;
+          background: var(--line);
+          border: 1px solid var(--line);
+          margin: 20px 0;
+        }
+        .calc-card { background: var(--surface); }
+        .calc-card summary {
+          list-style: none;
+          cursor: pointer;
+          padding: 16px 18px;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .calc-card summary::-webkit-details-marker { display: none; }
+        .calc-label {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          color: var(--text-faint);
+        }
+        .calc-value {
+          font-family: var(--font-mono);
+          font-size: 20px;
+          color: var(--amber);
+          font-weight: 500;
+        }
+        .calc-unit { font-size: 12px; color: var(--text-dim); margin-left: 5px; }
+        .calc-card:hover summary { background: var(--surface-raised); }
+        .calc-explain { padding: 0 18px 16px; font-size: 13px; color: var(--text-dim); }
+        .calc-explain p { margin: 8px 0 0; }
+        .calc-explain pre {
+          background: var(--surface-raised);
+          border: 1px solid var(--line);
+          padding: 10px 12px;
+          margin: 0;
+          font-size: 12px;
+          overflow-x: auto;
+        }
+        </style>
+        <p>
+          The performance of the whole plane was then analysed in XFLR5. The overall glide ratio was reduced due to the additional drag cause by the tail sections. This decreased the cruise speed slightly from the 10.79m/s of just the wing to 10.2m/s.
+        </p>
         </div>
       </details>
 
@@ -549,16 +753,174 @@
             Due to the size of the aircraft, a standard system of control surfaces were selected (elevator, rudder, ailerons) as opposed to pure tail control (elevator, rudder). To impove stall characteristics, I additonally wanted to add flaps to the inboard section of the main wing.
           </p>
           <p>
-            Each of the control surfaces were sized as 30% of the chord length, designed with a maximum deflection of 20&deg; each direction.
+            Each of the control surfaces were sized as 30% of the chord length, designed with a maximum deflection of 20&deg; each direction. Both the elevator and rudder take up the entire span of the respective wing. Flaps span from 0.063m to 0.313m (0.25m, 1/4 of total span) and ailerons span from 0.313m to 0.475m (0.162m, 16.2% of total span).
           </p>
-
+          <p>
+            To evaluate used AVL wrapper
+          </p>
         </div>
       </details>
 
       <details class="accordion-item">
         <summary>Longitudinal stability</summary>
         <div class="accordion-body">
-          <p>Your content here.</p>
+          <p>
+            An aircaft is considered neutrally stable if the central of gravity of the whole aircraft resides at a position called the neutral point, in this position, disturbances cause oscilatory motion in the aircaft. For these oscilations to decay (static stability), a static margin is required (distance the CoG is in front of the neutral point).
+          </p>
+          <!-- ============================================================
+            CG POSITION / STATIC MARGIN — a to-scale diagram showing
+            where the aerodynamic centre, CG, and neutral point sit
+            along the mean chord, plus the real formulas behind each.
+            ============================================================ -->
+
+        <h3 style="font-family:var(--font-display); font-size:18px; margin-bottom:16px;">Longitudinal stability — CG vs neutral point</h3>
+
+        <div class="cg-diagram">
+          <svg viewBox="0 0 500 90" style="width:100%; max-width:600px;">
+            <!-- datum line: 0 to MAC (0.25 m), scaled to 460px -->
+            <line x1="20" y1="45" x2="480" y2="45" stroke="var(--line-bright)" stroke-width="1.5"/>
+            <text x="20" y="70" fill="var(--text-faint)" font-family="monospace" font-size="11">0 (wing LE)</text>
+            <text x="440" y="70" fill="var(--text-faint)" font-family="monospace" font-size="11">MAC (0.25m)</text>
+
+            <!-- x_ac = 0.0625 -> 20 + 0.0625/0.25*460 = 135 -->
+            <line x1="135" y1="30" x2="135" y2="60" stroke="var(--teal)" stroke-width="2"/>
+            <text x="135" y="22" fill="var(--teal)" font-family="monospace" font-size="12" text-anchor="middle">AC</text>
+            <text x="135" y="82" fill="var(--teal)" font-family="monospace" font-size="10" text-anchor="middle">0.0625m</text>
+
+            <!-- x_cg = 0.085 -> 20 + 0.085/0.25*460 = 176.4 -->
+            <line x1="176" y1="30" x2="176" y2="60" stroke="var(--amber)" stroke-width="2"/>
+            <text x="176" y="22" fill="var(--amber)" font-family="monospace" font-size="12" text-anchor="middle">CG</text>
+            <text x="176" y="82" fill="var(--amber)" font-family="monospace" font-size="10" text-anchor="middle">0.085m</text>
+
+            <!-- x_np = 0.1126 -> 20 + 0.1126/0.25*460 = 227.2 -->
+            <line x1="227" y1="30" x2="227" y2="60" stroke="#ffffff" stroke-width="2"/>
+            <text x="227" y="22" fill="var(--text)" font-family="monospace" font-size="12" text-anchor="middle">NP</text>
+            <text x="227" y="82" fill="var(--text)" font-family="monospace" font-size="10" text-anchor="middle">0.1126m</text>
+
+            <!-- static margin bracket between CG and NP -->
+            <line x1="176" y1="45" x2="227" y2="45" stroke="var(--amber)" stroke-width="4" stroke-opacity="0.4"/>
+          </svg>
+          <p class="cg-margin-label">Static margin = 11.02% MAC</p>
+        </div>
+
+
+        <div class="calc-grid">
+
+          <details class="calc-card">
+            <summary>
+              <span class="calc-label">Aerodynamic centre</span>
+              <span class="calc-value">0.0625<span class="calc-unit">m</span></span>
+            </summary>
+            <div class="calc-explain">
+              <pre><code class="language-plain">x_ac = 0.25 * MAC</code></pre>
+              <p>Standard quarter-chord assumption for the wing's aerodynamic centre. Point about which the wing's pitching moment is constant with angle of attack.</p>
+            </div>
+          </details>
+
+          <details class="calc-card">
+            <summary>
+              <span class="calc-label">Downwash gradient</span>
+              <span class="calc-value">0.49<span class="calc-unit">dε/dα</span></span>
+            </summary>
+            <div class="calc-explain">
+              <pre><code class="language-plain">de_da = 2 * a_w / (pi * AR_wing)</code></pre>
+              <p>How much the tail's effective angle of attack is reduced by the main wing's downwash — needed before the tail's effective lift slope can be found.</p>
+            </div>
+          </details>
+
+          <details class="calc-card">
+            <summary>
+              <span class="calc-label">Effective tail lift slope</span>
+              <span class="calc-value">1.61</span>
+            </summary>
+            <div class="calc-explain">
+              <pre><code class="language-plain">a_tail_eff = a_tail * (1 - de_da)</code></pre>
+              <p>The tail's lift-curve slope, reduced to account for the downwash it sits in behind the main wing. Found with XFLR5</p>
+            </div>
+          </details>
+
+          <details class="calc-card">
+            <summary>
+              <span class="calc-label">Neutral point</span>
+              <span class="calc-value">0.1126<span class="calc-unit">m</span></span>
+            </summary>
+            <div class="calc-explain">
+              <pre><code class="language-plain">x_np = x_ac + (a_tail_eff/a_w) * (S_tail/S_w) * eta_tail * L_tail</code></pre>
+              <p>The CG position at which the aircraft would have zero static stability.</p>
+            </div>
+          </details>
+
+          <details class="calc-card">
+            <summary>
+              <span class="calc-label">Static margin</span>
+              <span class="calc-value">11.02<span class="calc-unit">% MAC</span></span>
+            </summary>
+            <div class="calc-explain">
+              <pre><code class="language-plain">SM = (x_np - x_cg) / MAC * 100</code></pre>
+              <p>How far ahead the CG sits of the neutral point, as a percentage of mean chord. Measure of pitch stability margin. A positive value means the aircraft is statically stable.</p>
+            </div>
+          </details>
+
+        </div>
+
+        <style>
+        .cg-diagram {
+          border: 1px solid var(--line);
+          padding: 24px 20px 16px;
+          margin-bottom: 24px;
+        }
+        .cg-margin-label {
+          text-align: center;
+          font-family: var(--font-mono);
+          font-size: 13px;
+          color: var(--amber);
+          margin: 10px 0 0;
+        }
+
+        .calc-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          gap: 1px;
+          background: var(--line);
+          border: 1px solid var(--line);
+          margin: 20px 0;
+        }
+        .calc-card { background: var(--surface); }
+        .calc-card summary {
+          list-style: none;
+          cursor: pointer;
+          padding: 16px 18px;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .calc-card summary::-webkit-details-marker { display: none; }
+        .calc-label {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          color: var(--text-faint);
+        }
+        .calc-value {
+          font-family: var(--font-mono);
+          font-size: 18px;
+          color: var(--amber);
+          font-weight: 500;
+        }
+        .calc-unit { font-size: 12px; color: var(--text-dim); margin-left: 5px; }
+        .calc-card:hover summary { background: var(--surface-raised); }
+        .calc-explain { padding: 0 18px 16px; font-size: 13px; color: var(--text-dim); }
+        .calc-explain p { margin: 8px 0 0; }
+        .calc-explain pre {
+          background: var(--surface-raised);
+          border: 1px solid var(--line);
+          padding: 10px 12px;
+          margin: 0;
+          font-size: 12px;
+          overflow-x: auto;
+        }
+        </style>
         </div>
       </details>
 
@@ -581,7 +943,7 @@
         <summary>Meshing and set-up</summary>
         <div class="accordion-body">
           <p>
-            Stall is caused by the boundary layer of air on the surface of the wing becoming detatched from the surface and the wing losing lift. Boundary layers form very close to the surface (order of 10^-3m), so a fine, structured mesh is required close to the surface to capture this behavior. On the surface of the wing, a structured mesh called an inflation layer, size 0.00001m, was constructed to correctly capture the local flow effects. 
+            Stall is caused by the boundary layer of air on the surface of the wing becoming detatched from the surface and the wing losing lift. Boundary layers form very close to the surface (order of 10^-3m), so a fine, structured mesh is required close to the surface to capture this behavior. On the surface of the wing, a structured mesh called an inflation layer, size 0.00001m (y+ = 0.99 - y+&lt;1 for boundary layer), was constructed to correctly capture the local flow effects. (Y+=density * mesh size * friction velocity/ dynamic viscocity)
           </p>
           
           <img src="Images/Inflation.png" alt="Inflation Layer" width="400" height="400">
@@ -589,7 +951,61 @@
             Away from the wing, a control volume was built, extending 30m infront, above and behind the wing to capture larger behaviors. An unstructured mesh of face sizing size 2mm was built to do this. 
           </p>
           
-        <img src="Images/sparse.png" alt="Sparse Mesh" width="400" height="400">
+          <img src="Images/sparse.png" alt="Sparse Mesh" width="400" height="400">
+          <p>
+            To save on computational costs, only a half the wing-span was analysed, values obtained would have to be adjusted accordingly when not using dimensionless numbers. A symmetry wall was then used to prevent flow across the boundary. Inlet and Outlet walls were then defined, for 0&deg; angle of attack, the inlet x-velocity was set to the cruise velocity 10.2m/s, then for other angles, the inlet and freestream walls (top bottom and side of the control volume), were set so that X and Y-velocities were the correct components for that angle. The fluid used inside the boundary was air with density and dynamic viscocity at sea level.
+          </p>
+          <p>
+            To ensure that the mesh size was not affecting the CFD results, the mesh was refined (face sizing reduced) until the mesh size no longer affected the results. The resultant mesh was fine enough to effect the results, but not fine enough to be computationally expensive.       
+          </p>
+          <!-- ============================================================
+              MESH CONVERGENCE — real data: 4 mesh densities, showing
+              C_L, C_D, C_M settling as cell count increases.
+              Log-scale x-axis since cell counts span a wide range.
+              ============================================================ -->
+
+          <h3 style="font-family:var(--font-display); font-size:18px; margin-bottom:12px;">Mesh convergence study</h3>
+          <div id="mesh-convergence-chart" style="max-width:640px;"></div>
+
+          <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+          <script>
+            const cellCount = [146225, 169601, 200980, 307365];
+            const cl3 = [0.0713, 0.07178, 0.07234, 0.07236];
+            const cd3 = [0.005, 0.00467, 0.00413, 0.004136];
+            const cm = [0.0298, 0.0299, 0.0300, 0.0303];
+
+            Plotly.newPlot('mesh-convergence-chart', [
+              {
+                x: cellCount, y: cl3, mode: 'lines+markers',
+                name: 'C_L', line: { color: '#e8a33d' }, yaxis: 'y1'
+              },
+              {
+                x: cellCount, y: cd3, mode: 'lines+markers',
+                name: 'C_D', line: { color: '#4fa98c' }, yaxis: 'y2'
+              }
+            ], {
+              paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+              font: { color: '#e7ecef', family: 'IBM Plex Mono' },
+              xaxis: {
+                title: 'Cell count', type: 'log', gridcolor: '#2a3540'
+              },
+              yaxis: {
+                title: 'C_L', gridcolor: '#2a3540', color: '#e8a33d'
+              },
+              yaxis2: {
+                title: 'C_D', overlaying: 'y', side: 'right', color: '#4fa98c'
+              },
+              legend: { orientation: 'h', y: -0.25 },
+              margin: { t: 20, r: 55, l: 55, b: 55 }
+            }, { displayModeBar: false });
+          </script>
+
+          <p style="color:var(--text-dim); font-size:14px; margin-top:14px;">
+            C_L and C_D both flatten out as the mesh is refined from ~146k to ~307k cells (C_L changes by less than 2% between the two finest meshes, C_D by less than 1%), indicating the results are approaching mesh independence. The <span style="color:var(--amber);">~307k cell</span> mesh was used for the final reported results.
+          </p>
+          <p>
+            Later when meshing the wing with flaps deployed, a sharp edge at the hinge line caused the solver to crash. This was fixed by adding a fillet to the hinge geometry prior to meshing. 
+          </p>
         </div>
       </details>
 
@@ -597,8 +1013,15 @@
         <summary>Models</summary>
         <div class="accordion-body">
           <p>
-            To model stall, 
+            To model stall and drag, a viscous model that models transition must be used, for this task, transition SST was selected (4 equations). This model predicts where the laminar approaching flow transitions to turbulance. It was used as opposed to a fully turbulent model such as k-ω SST as the wing operates at low Reynold's numbers where transition occuring on the wing has effects on separation and drag.
           </p>
+          <p>
+            When solving, pressure-velocity coupling was used, with second-order-upwind spacial discretisation parameters. Relaxation controls were initially left on defualt. A solution was demmed converged when all the residuals settled and no longer oscilated. Lift, drag and moment coefficent were monitored for each wing and were compared to XFLR5 results to validate them.
+          </p>
+          <p>
+            When a solution was struggling to converge, various measures were taken to aid the stability of the solution. Initally I changed the solution controls to underelaxed, forcing the solution to take smaller steps. If this alone did not help, I also changed some of the spatial discretisation schemes to first-order (this increases the error of the results). The final method before altering geometry or remeshing was to change the solution scheme to SIMPLE which is slower bu more stable.
+          </p>
+          
         </div>
       </details>
 
@@ -606,9 +1029,174 @@
         <summary>Full wing CFD</summary>
         <div class="accordion-body">
           <p>Your content here.</p>
+          <!-- ============================================================
+                XFLR5 vs CFD COMPARISON — both datasets are your own real
+                results, sampled at the same angles of attack for a direct
+                comparison. Chart + a summary table with % difference.
+                ============================================================ -->
+
+            <h3 style="font-family:var(--font-display); font-size:18px; margin-bottom:12px;">XFLR5 (VLM) vs CFD (Fluent, viscous) — C_L</h3>
+            <div id="xflr5-cfd-cl" style="max-width:640px; margin-bottom:36px;"></div>
+
+            <h3 style="font-family:var(--font-display); font-size:18px; margin-bottom:12px;">XFLR5 (VLM) vs CFD (Fluent, viscous) — C_D</h3>
+            <div id="xflr5-cfd-cd" style="max-width:640px; margin-bottom:36px;"></div>
+
+            <h3 style="font-family:var(--font-display); font-size:18px; margin-bottom:12px;">XFLR5 (VLM) vs CFD (Fluent, viscous) — C_m</h3>
+            <div id="xflr5-cfd-cm" style="max-width:640px; margin-bottom:36px;"></div>
+
+            <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+            <script>
+              const alpha2 = [0, 2, 4, 6, 8, 10, 12, 14];
+
+              const cl_xflr5 = [0.1119, 0.2579, 0.4030, 0.5468, 0.6888, 0.8285, 0.9654, 1.0991];
+              const cl_cfd   = [0.1092, 0.2580, 0.3884, 0.5042, 0.6817, 0.7230, 0.8220, 0.8940];
+
+              const cd_xflr5 = [0.0196, 0.0201, 0.0264, 0.0365, 0.0503, 0.0675, 0.0880, 0.1119];
+              const cd_cfd   = [0.0146, 0.0174, 0.0241, 0.0283, 0.0467, 0.0624, 0.0873, 0.1062];
+
+              Plotly.newPlot('xflr5-cfd-cl', [
+                { x: alpha2, y: cl_xflr5, mode: 'lines+markers', name: 'XFLR5 (VLM)', line: { color: '#4fa98c' } },
+                { x: alpha2, y: cl_cfd,   mode: 'lines+markers', name: 'CFD (Fluent)', line: { color: '#e8a33d' } }
+              ], {
+                paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+                font: { color: '#e7ecef', family: 'IBM Plex Mono' },
+                xaxis: { title: 'Angle of attack (deg)', gridcolor: '#2a3540' },
+                yaxis: { title: 'C_L', gridcolor: '#2a3540' },
+                legend: { orientation: 'h', y: -0.2 },
+                margin: { t: 20, r: 20, l: 55, b: 55 }
+              }, { displayModeBar: false });
+
+              Plotly.newPlot('xflr5-cfd-cd', [
+                { x: alpha2, y: cd_xflr5, mode: 'lines+markers', name: 'XFLR5 (VLM)', line: { color: '#4fa98c' } },
+                { x: alpha2, y: cd_cfd,   mode: 'lines+markers', name: 'CFD (Fluent)', line: { color: '#e8a33d' } }
+              ], {
+                paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+                font: { color: '#e7ecef', family: 'IBM Plex Mono' },
+                xaxis: { title: 'Angle of attack (deg)', gridcolor: '#2a3540' },
+                yaxis: { title: 'C_D', gridcolor: '#2a3540' },
+                legend: { orientation: 'h', y: -0.2 },
+                margin: { t: 20, r: 20, l: 55, b: 55 }
+              }, { displayModeBar: false });
+
+            </script>
+
+            <h3 style="font-family:var(--font-display); font-size:18px; margin-bottom:12px;">Summary at key points</h3>
+
+            <table class="spec-table">
+              <thead>
+                <tr><td>Quantity</td><td>XFLR5 (VLM)</td><td>CFD (Fluent)</td><td>Difference</td></tr>
+              </thead>
+              <tbody>
+                <tr><td>C_L at cruise AoA (4°)</td><td>0.403</td><td>0.388</td><td>~4%</td></tr>
+                <tr><td>C_D at cruise AoA (4°)</td><td>0.0264</td><td>0.0241</td><td>~9%</td></tr>
+                <tr><td>C_L at 12°</td><td>0.965</td><td>0.822</td><td>~15%</td></tr>
+                <tr><td>C_L at 14°</td><td>1.099</td><td>0.894</td><td>~19%</td></tr>
+              </tbody>
+            </table>
+
+            <p style="color:var(--text-dim); font-size:14px; margin-top:14px;">
+              The two methods agree closely at low-to-moderate angles of attack for C_L (within ~4-9% up to cruise conditions), which is expected since VLM is a potential-flow method and doesn't need viscous effects to be accurate in the linear lift region. The methods diverge more sharply at angles approaching stall (12-14°). Because XFLR5's VLM has no way to model flow separation, so it keeps predicting a linear-ish lift increase, while the viscous CFD model captures the lift curve beginning to flatten as the wing approaches stall. This divergence is expecte and confirms CFD should be trusted for near-stall behaviour.
+            </p>
+            <img src="Images/Bubble.png" alt="bubble">
+            <p>
+              At high angles of attack (pictured is 12&deg; - blue is near 0 velocity, red ~12m/s), a laminar speration bubble formed on the wings upper surface. Near the leading edge, the near-surface velocity drops to near zero, consistent with recirculating near-stagnent air inside the bubble where the boundary layer has detatched from the surface. In this case, the flow did not reattatch as the AoA was too high. The scalloped shape of the bubble is consistent with laminar separation bubbles, this shows the model selected specifcally to capture low-Re physics was a correct choice.
+            </p>
+            <!-- ============================================================
+                  OSWALD EFFICIENCY — AVL (inviscid VLM) vs CFD (viscous RANS)
+                  ============================================================ -->
+
+              <h3 style="font-family:var(--font-display); font-size:18px; margin-bottom:12px;">Oswald efficiency: AVL vs CFD</h3>
+
+              <table class="spec-table">
+                <thead>
+                  <tr><td>Method</td><td>e</td><td>Basis</td></tr>
+                </thead>
+                <tbody>
+                  <tr><td>AVL (vortex lattice)</td><td style="color:var(--amber);">0.97</td><td>Inviscid — spanwise loading only</td></tr>
+                  <tr><td>CFD (Fluent, viscous)</td><td style="color:var(--amber);">0.87</td><td>Viscous — pre-stall points only</td></tr>
+                </tbody>
+              </table>
+
+              <div class="calc-grid">
+
+                <details class="calc-card">
+                  <summary>
+                    <span class="calc-label">Drag polar relation</span>
+                    <span class="calc-value">C_D = C_D0 + C_L²/(πARe)</span>
+                  </summary>
+                  <div class="calc-explain">
+                    <p>Parabolic drag polar. Plotting C_D against C_L² for low angles of attack gives a linear relationshop whose slope is 1/(π·AR·e). From that slope, e can be solved for directly.</p>
+                  </div>
+                </details>
+
+                <details class="calc-card">
+                  <summary>
+                    <span class="calc-label">CFD fit range</span>
+                    <span class="calc-value">Pre-stall points only</span>
+                  </summary>
+                  <div class="calc-explain">
+                    <p>The parabolic drag polar assumption only holds for attached flow. Points at or near C_L_max (where the wing begins to stall and drag rises sharply from separation) were excluded from the regression.</p>
+                  </div>
+                </details>
+
+                <details class="calc-card">
+                  <summary>
+                    <span class="calc-label">Why AVL &gt; CFD</span>
+                    <span class="calc-value">Inviscid vs viscous</span>
+                  </summary>
+                  <div class="calc-explain">
+                    <p>AVL is a vortex-lattice (potential flow) method so it captures only inviscid induced drag from the spanwise lift distribution, with no representation of viscous effects at all. The efficiency is purely span-loading efficiency, and values near 0.95-0.99 are typical for a well-tapered, twisted planform.</p>
+                    <p>In contrast, the drag value obtained in CFD captures flow effects such as boundary layer growth, movement of transition, and the onset of separation, which increase drag with lift faster than the ideal induced-drag-only curve. A CFD-derived e meaningfully below the AVL value is expected.</p>
+                  </div>
+                </details>
+
+              </div>
+              <style>
+              .calc-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 1px;
+                background: var(--line);
+                border: 1px solid var(--line);
+                margin: 20px 0;
+              }
+              .calc-card { background: var(--surface); }
+              .calc-card summary {
+                list-style: none;
+                cursor: pointer;
+                padding: 16px 18px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+              }
+              .calc-card summary::-webkit-details-marker { display: none; }
+              .calc-label {
+                font-family: var(--font-mono);
+                font-size: 11px;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: var(--text-faint);
+              }
+              .calc-value {
+                font-family: var(--font-mono);
+                font-size: 16px;
+                color: var(--amber);
+                font-weight: 500;
+              }
+              .calc-card:hover summary { background: var(--surface-raised); }
+              .calc-explain { padding: 0 18px 16px; font-size: 13px; color: var(--text-dim); }
+              .calc-explain p { margin: 8px 0 0; }
+              </style>
         </div>
       </details>
-
+      <details class="accordion-item">
+        <summary>Flap CFD</summary>
+        <div class="accordion-body">
+          <p>
+            
+          </p>
+        </div>
+      </details>
     </div>
   </div>
 </section>

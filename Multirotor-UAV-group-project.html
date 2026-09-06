@@ -78,7 +78,8 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     <button class="cat-btn" data-cat="gimbal">Gimbal</button>
     <button class="cat-btn" data-cat="datalogging">Data logging</button>
     <button class="cat-btn" data-cat="electronics">Electronics</button>
-    <button class="cat-btn" data-cat="Full code">Full code</button>
+    <button class="cat-btn" data-cat="testing">Testing</button>
+    <button class="cat-btn" data-cat="fullcode">Full code</button>
   </div>
 </div>
   <section id="gimbal-control" data-cat="gimbal">
@@ -2061,8 +2062,10 @@ Provided by Boeing, the motion capture data and software tracks both the drone a
           <h2>
             Tilt table
           </h2>
+          <image src ="Images/GimbalProblem(1).png" alt = "lose"></image>
+          <image src ="Images/GimbalProblem(2).png" alt = "lose"></image>
           <p>
-            The tilt table exposed another area of improvement to the gimbals design. When the assessor went to install the motion capture L-arm, it was not intuative enough as to how it should be fastened (down to the structures designer not myself) so came the arm came loose during testing so pitch response drifted (graph shown) throughout operation. After a step input was applied, the output given to the servos shows very little oscilation after the step input was applied. However in practice, a small amount of oscilation was observed by the motion capture tests. This was likely caused by a small amount of play in the gearing mechanisms of the cheap servos provided. 
+            The tilt table exposed another area of improvement to the gimbals design. When the assessor went to install the motion capture L-arm, it was not intuative enough as to how it should be fastened (down to the structure's designer not myself) so came the arm came loose during testing so pitch response drifted (graph shown) throughout operation. After a step input was applied, the output given to the servos shows very little oscilation after the step input was applied. However in practice, a small amount of oscilation was observed by the motion capture tests. This was likely caused by a small amount of play in the gearing mechanisms of the cheap servos provided. 
             To fix the first issue, an instruction to the assessor could have been provided prior as to how to correctly fasten the L-beam, or a wingnut used instead of an m3-screw to make the fastening mechanism more obvious. The second issue could have been fixed by using metal gear servos (MG90s) which have much less play in their gearing mechanicisms. 
           </p>
           <h2>
@@ -2698,9 +2701,13 @@ Provided by Boeing, the motion capture data and software tracks both the drone a
     </div>
 
     <div class="log-entry">
-      <div class="log-tag">CFD</div>
-      <h4>Solver crash from flap hinge geometry</h4>
-      <p>A sharp edge at the flap hinge line was causing Fluent to crash. Fixed by adding a small fillet to the hinge geometry in Onshape before meshing.</p>
+      <div class="log-tag">Filtering</div>
+      <h4>Fixing Gimbal shake</h4>
+      <p>
+        <video width="320" height="240" controls>
+          <source src="Images/Motor shake.mp4" type="video/mp4">
+        </video>
+      </p>
     </div>
 
   </div>
